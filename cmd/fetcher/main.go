@@ -1,11 +1,9 @@
 package main
 
 import (
-	"context"
-	"fmt"
+	"github-weekly-log/internal/github"
 	"os"
 
-	"github.com/google/go-github/v60/github"
 	"github.com/joho/godotenv"
 )
 
@@ -17,18 +15,13 @@ func main() {
 	GITHUB_TOKEN := os.Getenv("GITHUB_TOKEN")
 	GITHUB_USER := os.Getenv("GITHUB_USER")
 
-	client := github.NewClient(nil).WithAuthToken(GITHUB_TOKEN)
+	client := github.NewClient(GITHUB_TOKEN)
 
-	opt := &github.RepositoryListByUserOptions{
-		Type: "owner",
-	}
-	repos, _, err := client.Repositories.ListByUser(context.Background(), GITHUB_USER, opt)
+	evnets, err := client.FetchWeeklyEvents(GITHUB_USER)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(len(repos))
-	for i := range repos {
-		fmt.Println(*repos[i].Name)
-	}
-	_ = repos
+
+	_ = evnets
+
 }
