@@ -1,0 +1,36 @@
+<mjml>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#24292e" padding-bottom="0">
+      <mj-column width="100%">
+        <mj-text color="#ffffff" font-size="20px" font-weight="bold">
+          Weekly Report
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff">
+      <mj-column>
+        <mj-text font-size="14px" color="#586069">Total Commits</mj-text>
+        <mj-text font-size="32px" font-weight="bold" color="#28a745">
+          {{.TotalCommits}}
+        </mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text font-size="14px" color="#586069">Active Days</mj-text>
+        <mj-text font-size="32px" font-weight="bold" color="#0366d6">
+          {{.ActiveDays}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="0">
+      <mj-column width="100%">
+        <mj-divider border-width="1px" border-color="#e1e4e8" />
+        <mj-text font-weight="bold">Languages Summay</mj-text>
+        {{range $lang, $count := .Languages}}
+        <mj-text padding-bottom="0">{{$lang}}: {{$count}} changes</mj-text>
+        {{end}}
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
