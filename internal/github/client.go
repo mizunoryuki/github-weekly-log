@@ -31,8 +31,9 @@ func NewClient(token string) *Client {
 
 // データ取得ロジック
 func (c *Client) FetchWeeklyCommits(ctx context.Context, username string) (*WeeklyStats, error) {
-	now := time.Now()
-	oneWeekAgo := now.AddDate(0, 0, -7)
+
+	// 週間の開始日と終了日を取得
+	now, oneWeekAgo := getTargetRange()
 
 	stats := &WeeklyStats{
 		CommitDays:  make(map[string]int),
@@ -47,7 +48,7 @@ func (c *Client) FetchWeeklyCommits(ctx context.Context, username string) (*Week
 		Sort:        "pushed",
 		Direction:   "desc",
 		Visibility:  "all",
-		Affiliation: "owner",
+		Affiliation: "owner", // 所有しているリポジトリのみ
 	}
 
 	var allRepos []*github.Repository
@@ -112,4 +113,19 @@ func (c *Client) FetchWeeklyCommits(ctx context.Context, username string) (*Week
 	}
 
 	return stats, nil
+}
+
+// 週間の開始日と終了日を取得
+func getTargetRange() (time.Time, time.Time) {
+
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	now := time.Now().In(jst)
+
+	// 今週の金曜日21時を終了日時とする
+	// 現在の曜日から金曜日までの日数を計算
+	offset := int(time.Friday - now.Weekday())
+
+	endDate := time.Date(now.Year(), now.Month(), now.Day()+offset, 21, 0, 0, 0, jst)
+	startDate := endDate.AddDate(0, 0, -7)
+	return startDate, endDate
 }
