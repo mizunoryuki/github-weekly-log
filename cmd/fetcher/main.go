@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github-weekly-log/internal/github"
 	"os"
 
@@ -17,11 +18,11 @@ func main() {
 
 	client := github.NewClient(GITHUB_TOKEN)
 
-	evnets, err := client.FetchWeeklyEvents(GITHUB_USER)
+	events, err := client.FetchWeeklyCommits(context.Background(), GITHUB_USER)
 	if err != nil {
 		panic(err)
 	}
 
-	_ = evnets
+	_ = events
 
 }
