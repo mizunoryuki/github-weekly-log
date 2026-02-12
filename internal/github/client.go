@@ -25,6 +25,14 @@ type WeeklyStats struct {
 	EndDate         time.Time      // 週間終了日
 }
 
+// 前週比較データ構造体
+type WeeklyComparison struct {
+	CurrentWeek       *WeeklyStats
+	PreviousWeek      *WeeklyStats
+	CommitsDiff       int     // コミット数の差分
+	CommitsChangeRate float64 // コミット数の変化率（%）
+}
+
 // クライアントの生成
 func NewClient(token string) *Client {
 	return &Client{
@@ -34,10 +42,47 @@ func NewClient(token string) *Client {
 
 // データ取得ロジック
 func (c *Client) FetchWeeklyCommits(ctx context.Context, username string) (*WeeklyStats, error) {
-
 	// 週間の開始日と終了日を取得
 	startDate, endDate := getTargetRange()
+	return c.fetchWeeklyCommitsInRange(ctx, username, startDate, endDate)
+}
 
+// 前週比を含むデータ取得
+func (c *Client) FetchWeeklyCommitsWithComparison(ctx context.Context, username string) (*WeeklyComparison, error) {
+	// 今週のデータを取得
+	currentStart, currentEnd := getTargetRange()
+	currentWeek, err := c.fetchWeeklyCommitsInRange(ctx, username, currentStart, currentEnd)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching current week data: %v", err)
+	}
+
+	// 先週のデータを取得
+	previousStart := currentStart.AddDate(0, 0, -7)
+	previousEnd := currentEnd.AddDate(0, 0, -7)
+	previousWeek, err := c.fetchWeeklyCommitsInRange(ctx, username, previousStart, previousEnd)
+	if err != nil {
+		return nil, fmt.Errorf("error fetching previous week data: %v", err)
+	}
+
+	// 比較データを計算
+	comparison := &WeeklyComparison{
+		CurrentWeek:  currentWeek,
+		PreviousWeek: previousWeek,
+		CommitsDiff:  currentWeek.TotalCommits - previousWeek.TotalCommits,
+	}
+
+	// 変化率を計算
+	if previousWeek.TotalCommits > 0 {
+		comparison.CommitsChangeRate = float64(comparison.CommitsDiff) / float64(previousWeek.TotalCommits) * 100
+	} else if currentWeek.TotalCommits > 0 {
+		comparison.CommitsChangeRate = 100 // 0から増加した場合は100%とする
+	}
+
+	return comparison, nil
+}
+
+// 指定期間のコミットデータを取得（内部用）
+func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string, startDate, endDate time.Time) (*WeeklyStats, error) {
 	stats := &WeeklyStats{
 		CommitDays:      make(map[string]int),
 		RepoCommits:     make(map[string]int),
@@ -72,9 +117,10 @@ func (c *Client) FetchWeeklyCommits(ctx context.Context, username string) (*Week
 
 	// 各リポジトリのコミットを取得
 	for _, repo := range allRepos {
-
 		// 最近プッシュされていないリポジトリはスキップ
-		if repo.GetPushedAt().Before(startDate) {
+		// 先週のデータも取得するため、2週間前までチェック
+		twoWeeksAgo := startDate.AddDate(0, 0, -7)
+		if repo.GetPushedAt().Before(twoWeeksAgo) {
 			continue
 		}
 
@@ -138,7 +184,6 @@ func (c *Client) FetchWeeklyCommits(ctx context.Context, username string) (*Week
 
 // 週間の開始日と終了日を取得
 func getTargetRange() (time.Time, time.Time) {
-
 	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	now := time.Now().In(jst)
 
@@ -166,5 +211,4 @@ func getLanguageFromFilename(filename string) string {
 	}
 
 	return "Other"
-
 }
