@@ -141,6 +141,13 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 
 	// 各リポジトリのコミットを取得
 	for _, repo := range allRepos {
+		repoName := repo.GetName()
+
+		// 除外リポジトリをスキップ
+		if isRepositoryExcluded(repoName) {
+			continue
+		}
+
 		// 最近プッシュされていないリポジトリはスキップ
 		// 先週のデータも取得するため、2週間前までチェック
 		twoWeeksAgo := startDate.AddDate(0, 0, -7)
@@ -351,4 +358,14 @@ func generateDailyCommits(startDate time.Time, commitDays map[string]int) []Dail
 	}
 
 	return dailyCommits
+}
+
+// リポジトリが除外リストに含まれているかチェック
+func isRepositoryExcluded(repoName string) bool {
+	for _, excluded := range EXCLUDED_REPOSITORIES {
+		if repoName == excluded {
+			return true
+		}
+	}
+	return false
 }

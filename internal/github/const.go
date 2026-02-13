@@ -131,3 +131,8 @@ var MAIN_LANGUAGES_SET = func() map[string]bool {
 	}
 	return set
 }()
+
+// 除外リポジトリ（集計対象外）
+var EXCLUDED_REPOSITORIES = []string{
+	"obsidian-vault",
+}
