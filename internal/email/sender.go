@@ -6,6 +6,7 @@ import (
 	"github-weekly-log/internal/github"
 	"os"
 	"text/template"
+	"time"
 
 	"github.com/resend/resend-go/v3"
 )
@@ -68,4 +69,81 @@ func TestSend() error {
 
 	_, err = client.Emails.Send(params)
 	return err
+}
+
+func TestWeeklyMailSend() error {
+
+	now := time.Now()
+
+	// モックデータ
+	stats := github.WeeklyStats{
+		TotalCommits: 42,
+		ActiveDays:   5,
+		StartDate:    now.AddDate(0, 0, -7),
+		EndDate:      now,
+		RepoCommits: map[string]int{
+			"awesome-project": 25,
+			"go-utils":        12,
+			"dotfiles":        5,
+		},
+		MainLanguages: map[string]int{
+			"Go":         120,
+			"TypeScript": 85,
+			"Python":     30,
+		},
+	}
+	comparison := github.WeeklyComparison{
+		CurrentWeek: &stats,
+		PreviousWeek: &github.WeeklyStats{
+			TotalCommits: 30,
+			ActiveDays:   4,
+			StartDate:    now.AddDate(0, 0, -14),
+			EndDate:      now.AddDate(0, 0, -7),
+			RepoCommits: map[string]int{
+				"awesome-project": 18,
+				"go-utils":        8,
+				"dotfiles":        4,
+			},
+			MainLanguages: map[string]int{
+				"Go":         90,
+				"TypeScript": 60,
+				"Python":     20,
+			},
+		},
+		CommitsDiff:       12,
+		CommitsChangeRate: 40.0,
+	}
+
+	tmepl, err := template.ParseFiles("templates/dist/weekly.html")
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+	err = tmepl.Execute(&buf, comparison)
+	if err != nil {
+		return err
+	}
+
+	apiKey := os.Getenv("RESEND_API_KEY")
+	emailDomain := os.Getenv("RESEND_EMAIL_DOMAIN")
+	emailTo := os.Getenv("TEST_RESEND_EMAIL_TO")
+
+	client := resend.NewClient(apiKey)
+	params := &resend.SendEmailRequest{
+		From:    "Acme <" + emailDomain + ">",
+		To:      []string{emailTo},
+		Html:    buf.String(),
+		Subject: "週間コミットレポート（テスト送信）",
+	}
+	fmt.Println(params)
+	if err != nil {
+		return err
+	}
+	_, err = client.Emails.Send(params)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

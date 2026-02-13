@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="und" dir="auto" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"
+  xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-  <title></title>
+  <title>Weekly Commit Report</title>
   <!--[if !mso]><!-->
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!--<![endif]-->
@@ -40,7 +41,6 @@
       display: block;
       margin: 13px 0;
     }
-
   </style>
   <!--[if mso]>
     <noscript>
@@ -57,13 +57,6 @@
       .mj-outlook-group-fix { width:100% !important; }
     </style>
     <![endif]-->
-  <!--[if !mso]><!-->
-  <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700" rel="stylesheet" type="text/css">
-  <style type="text/css">
-    @import url(https://fonts.googleapis.com/css?family=Ubuntu:300,400,500,700);
-
-  </style>
-  <!--<![endif]-->
   <style type="text/css">
     @media only screen and (min-width:480px) {
       .mj-column-per-100 {
@@ -76,7 +69,6 @@
         max-width: 50%;
       }
     }
-
   </style>
   <style media="screen and (min-width:480px)">
     .moz-text-html .mj-column-per-100 {
@@ -88,25 +80,60 @@
       width: 50% !important;
       max-width: 50%;
     }
+  </style>
+  <style type="text/css">
+    .stat-label {
+      font-size: 14px;
+      color: #586069;
+    }
 
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .diff-plus {
+      color: #28a745;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .diff-minus {
+      color: #d73a49;
+      font-size: 14px;
+      font-weight: bold;
+    }
   </style>
 </head>
 
-<body style="word-spacing:normal;background-color:#f4f4f4;">
-  <div aria-roledescription="email" style="background-color:#f4f4f4;" role="article" lang="und" dir="auto">
+<body style="word-spacing:normal;background-color:#f6f8fa;">
+  <div aria-label="Weekly Commit Report" aria-roledescription="email" style="background-color:#f6f8fa;" role="article"
+    lang="und" dir="auto">
     <!--[if mso | IE]><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#24292e" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     <div style="background:#24292e;background-color:#24292e;margin:0px auto;max-width:600px;">
-      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#24292e;background-color:#24292e;width:100%;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+        style="background:#24292e;background-color:#24292e;width:100%;">
         <tbody>
           <tr>
             <td style="direction:ltr;font-size:0px;padding:20px 0;padding-bottom:0;text-align:center;">
               <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-              <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+              <div class="mj-column-per-100 mj-outlook-group-fix"
+                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;"
+                  width="100%">
                   <tbody>
                     <tr>
                       <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:20px;font-weight:bold;line-height:1;text-align:left;color:#ffffff;">Weekly Report</div>
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:20px;font-weight:bold;line-height:1;text-align:left;color:#ffffff;">
+                          Weekly Report</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td align="left" style="font-size:0px;padding:10px 25px;padding-top:0;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:1;text-align:left;color:#c8e1ff;">
+                          {{.CurrentWeek.StartDate.Format "1月2日"}} 〜 {{.CurrentWeek.EndDate.Format "1月2日"}}</div>
                       </td>
                     </tr>
                   </tbody>
@@ -120,39 +147,53 @@
     </div>
     <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     <div style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;">
-      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+        style="background:#ffffff;background-color:#ffffff;width:100%;">
         <tbody>
           <tr>
-            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+            <td style="border-bottom:1px solid #e1e4e8;direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
               <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:300px;" ><![endif]-->
-              <div class="mj-column-per-50 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+              <div class="mj-column-per-50 mj-outlook-group-fix"
+                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;"
+                  width="100%">
                   <tbody>
                     <tr>
-                      <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:14px;line-height:1;text-align:left;color:#586069;">Total Commits</div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:32px;font-weight:bold;line-height:1;text-align:left;color:#28a745;">{{.TotalCommits}}</div>
+                      <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:center;color:#24292e;">
+                          <span class="stat-label">トータルコミット</span><br />
+                          <span class="stat-value" style="color: #28a745;">{{.CurrentWeek.TotalCommits}}</span>
+                          <br />
+                          <mj-raw>{{if gt .CommitsDiff 0}}</mj-raw>
+                          <span class="diff-plus">▲ {{printf "%.1f" .CommitsChangeRate}}%</span>
+                          <mj-raw>
+                            {{else if lt .CommitsDiff 0}}</mj-raw>
+                          <span class="diff-minus">▼ {{printf "%.1f" .CommitsChangeRate}}%</span>
+                          <mj-raw>
+                            {{else}}</mj-raw>
+                          <span class="stat-label">±0%</span>
+                          <mj-raw>{{end}}</mj-raw>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
                 </table>
               </div>
               <!--[if mso | IE]></td><td class="" style="vertical-align:top;width:300px;" ><![endif]-->
-              <div class="mj-column-per-50 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+              <div class="mj-column-per-50 mj-outlook-group-fix"
+                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;"
+                  width="100%">
                   <tbody>
                     <tr>
-                      <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:14px;line-height:1;text-align:left;color:#586069;">Active Days</div>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:32px;font-weight:bold;line-height:1;text-align:left;color:#0366d6;">{{.ActiveDays}}</div>
+                      <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:center;color:#24292e;">
+                          <span class="stat-label">活動日数</span><br />
+                          <span class="stat-value" style="color: #0366d6;">{{.CurrentWeek.ActiveDays}}</span>
+                          <span style="font-size: 16px; color: #586069;"> / 7 days</span>
+                        </div>
                       </td>
                     </tr>
                   </tbody>
@@ -166,13 +207,56 @@
     </div>
     <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
     <div style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;">
-      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+        style="background:#ffffff;background-color:#ffffff;width:100%;">
+        <tbody>
+          <tr>
+            <td style="direction:ltr;font-size:0px;padding:20px 0;padding-top:10px;text-align:center;">
+              <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+              <div class="mj-column-per-100 mj-outlook-group-fix"
+                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;"
+                  width="100%">
+                  <tbody>
+                    <tr>
+                      <td align="left" style="font-size:0px;padding:10px 25px;padding-left:10px;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;line-height:1;text-align:left;color:#24292e;">
+                          リポジトリ別活動</div>
+                      </td>
+                    </tr>
+                    {{range $repo, $count := .CurrentWeek.RepoCommits}}
+                    <tr>
+                      <td align="left"
+                        style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:5px;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#24292e;">
+                          <code style="background: #f1f8ff; padding: 2px 4px;">{{$repo}}</code> : <b>{{$count}}</b>
+                          commits</div>
+                      </td>
+                    </tr>
+                    {{end}}
+                  </tbody>
+                </table>
+              </div>
+              <!--[if mso | IE]></td></tr></table><![endif]-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" bgcolor="#ffffff" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    <div style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:600px;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation"
+        style="background:#ffffff;background-color:#ffffff;width:100%;">
         <tbody>
           <tr>
             <td style="direction:ltr;font-size:0px;padding:20px 0;padding-top:0;text-align:center;">
               <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
-              <div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
-                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+              <div class="mj-column-per-100 mj-outlook-group-fix"
+                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;"
+                  width="100%">
                   <tbody>
                     <tr>
                       <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
@@ -183,17 +267,51 @@
                       </td>
                     </tr>
                     <tr>
-                      <td align="left" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;font-weight:bold;line-height:1;text-align:left;color:#000000;">Languages Summay</div>
+                      <td align="left" style="font-size:0px;padding:10px 25px;padding-left:10px;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:16px;font-weight:bold;line-height:1;text-align:left;color:#24292e;">
+                          主要言語の変更ファイル数</div>
                       </td>
                     </tr>
-                    {{range $lang, $count := .LanguageCommits}}
+                    {{range $lang, $count := .CurrentWeek.MainLanguages}}
                     <tr>
-                      <td align="left" style="font-size:0px;padding:10px 25px;padding-bottom:0;word-break:break-word;">
-                        <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#000000;">{{$lang}}: {{$count}} commits</div>
+                      <td align="left"
+                        style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:5px;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#24292e;">
+                          {{$lang}}: <b>{{$count}}</b> files changed</div>
                       </td>
                     </tr>
                     {{end}}
+                  </tbody>
+                </table>
+              </div>
+              <!--[if mso | IE]></td></tr></table><![endif]-->
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!--[if mso | IE]></td></tr></table><table align="center" border="0" cellpadding="0" cellspacing="0" class="" role="presentation" style="width:600px;" width="600" ><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;"><![endif]-->
+    <div style="margin:0px auto;max-width:600px;">
+      <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="width:100%;">
+        <tbody>
+          <tr>
+            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;">
+              <!--[if mso | IE]><table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td class="" style="vertical-align:top;width:600px;" ><![endif]-->
+              <div class="mj-column-per-100 mj-outlook-group-fix"
+                style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;"
+                  width="100%">
+                  <tbody>
+                    <tr>
+                      <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                        <div
+                          style="font-family:Helvetica, Arial, sans-serif;font-size:12px;line-height:1;text-align:center;color:#586069;">
+                          Sent by GitHub Weekly Log System<br /> Next report: {{(.CurrentWeek.EndDate.AddDate 0 0
+                          7).Format "1月2日"}}</div>
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>

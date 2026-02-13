@@ -21,6 +21,7 @@ type WeeklyStats struct {
 	HourlyActivity  [24]int        // 時間帯ごとのコミット数
 	RepoCommits     map[string]int // リポジトリごとのコミット数
 	LanguageCommits map[string]int // 言語ごとのコミット数
+	MainLanguages   map[string]int // 主要言語ごとのコミット数
 	StartDate       time.Time      // 週間開始日
 	EndDate         time.Time      // 週間終了日
 	ActiveDays      int            // コミットがあった日数
@@ -88,6 +89,7 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 		CommitDays:      make(map[string]int),
 		RepoCommits:     make(map[string]int),
 		LanguageCommits: make(map[string]int),
+		MainLanguages:   make(map[string]int),
 		StartDate:       startDate,
 		EndDate:         endDate,
 	}
@@ -182,6 +184,9 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 
 	stats.ActiveDays = len(stats.CommitDays)
 
+	// 主要言語のみフィルタリング
+	stats.MainLanguages = filterMainLanguages(stats.LanguageCommits)
+
 	return stats, nil
 }
 
@@ -214,4 +219,15 @@ func getLanguageFromFilename(filename string) string {
 	}
 
 	return "Other"
+}
+
+// 主要言語をフィルタリング
+func filterMainLanguages(langMap map[string]int) map[string]int {
+	filtered := make(map[string]int)
+	for lang, count := range langMap {
+		if MAIN_LANGUAGES_SET[lang] {
+			filtered[lang] = count
+		}
+	}
+	return filtered
 }

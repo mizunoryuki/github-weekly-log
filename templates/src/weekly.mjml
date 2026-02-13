@@ -1,38 +1,89 @@
 <mjml>
-  <mj-body background-color="#f4f4f4">
+  <mj-head>
+    <mj-title>Weekly Commit Report</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+      <mj-text color="#24292e" />
+    </mj-attributes>
+    <mj-style>
+      .stat-label { font-size: 14px; color: #586069; }
+      .stat-value { font-size: 32px; font-weight: bold; }
+      .diff-plus { color: #28a745; font-size: 14px; font-weight: bold; }
+      .diff-minus { color: #d73a49; font-size: 14px; font-weight: bold; }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f6f8fa">
+
     <mj-section background-color="#24292e" padding-bottom="0">
       <mj-column width="100%">
         <mj-text color="#ffffff" font-size="20px" font-weight="bold">
           Weekly Report
         </mj-text>
-      </mj-column>
-    </mj-section>
-
-    <mj-section background-color="#ffffff">
-      <mj-column>
-        <mj-text font-size="14px" color="#586069">Total Commits</mj-text>
-        <mj-text font-size="32px" font-weight="bold" color="#28a745">
-          {{.TotalCommits}}
-        </mj-text>
-      </mj-column>
-      <mj-column>
-        <mj-text font-size="14px" color="#586069">Active Days</mj-text>
-        <mj-text font-size="32px" font-weight="bold" color="#0366d6">
-          {{.ActiveDays}}
+        <mj-text color="#c8e1ff" font-size="12px" padding-top="0">
+          {{.CurrentWeek.StartDate.Format "1月2日"}} 〜 {{.CurrentWeek.EndDate.Format "1月2日"}}
         </mj-text>
       </mj-column>
     </mj-section>
 
-	<mj-section background-color="#ffffff" padding-top="0">
-		<mj-column width="100%">
-			<mj-divider border-width="1px" border-color="#e1e4e8" />
-			<mj-text font-weight="bold">Languages Summay</mj-text>
-			
-			<mj-raw>{{range $lang, $count := .LanguageCommits}}</mj-raw>
-			<mj-text padding-bottom="0">{{$lang}}: {{$count}} commits</mj-text>
-			<mj-raw>{{end}}</mj-raw>
-			
-		</mj-column>
-	</mj-section>
+    <mj-section background-color="#ffffff" border-bottom="1px solid #e1e4e8">
+      <mj-column>
+        <mj-text align="center">
+          <span class="stat-label">トータルコミット</span><br />
+          <span class="stat-value" style="color: #28a745;">{{.CurrentWeek.TotalCommits}}</span>
+          <br />
+          <mj-raw>{{if gt .CommitsDiff 0}}</mj-raw>
+            <span class="diff-plus">▲ {{printf "%.1f" .CommitsChangeRate}}%</span>
+          <mj-raw>{{else if lt .CommitsDiff 0}}</mj-raw>
+            <span class="diff-minus">▼ {{printf "%.1f" .CommitsChangeRate}}%</span>
+          <mj-raw>{{else}}</mj-raw>
+            <span class="stat-label">±0%</span>
+          <mj-raw>{{end}}</mj-raw>
+        </mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text align="center">
+          <span class="stat-label">活動日数</span><br />
+          <span class="stat-value" style="color: #0366d6;">{{.CurrentWeek.ActiveDays}}</span>
+          <span style="font-size: 16px; color: #586069;"> / 7 days</span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="10px">
+      <mj-column width="100%">
+        <mj-text font-size="16px" font-weight="bold"  padding-left="10px">
+          リポジトリ別活動
+        </mj-text>
+        <mj-raw>{{range $repo, $count := .CurrentWeek.RepoCommits}}</mj-raw>
+          <mj-text padding-top="0" padding-bottom="5px">
+            <code style="background: #f1f8ff; padding: 2px 4px;">{{$repo}}</code> : <b>{{$count}}</b> commits
+          </mj-text>
+        <mj-raw>{{end}}</mj-raw>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="0">
+      <mj-column width="100%">
+        <mj-divider border-width="1px" border-color="#e1e4e8" />
+        <mj-text font-size="16px" font-weight="bold" padding-left="10px">
+          主要言語の変更ファイル数
+        </mj-text>
+        <mj-raw>{{range $lang, $count := .CurrentWeek.MainLanguages}}</mj-raw>
+          <mj-text padding-top="0" padding-bottom="5px">
+            {{$lang}}: <b>{{$count}}</b> files changed
+          </mj-text>
+        <mj-raw>{{end}}</mj-raw>
+      </mj-column>
+    </mj-section>
+
+    <mj-section>
+      <mj-column>
+        <mj-text align="center" color="#586069" font-size="12px">
+          Sent by GitHub Weekly Log System<br />
+          Next report: {{(.CurrentWeek.EndDate.AddDate 0 0 7).Format "1月2日"}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
   </mj-body>
 </mjml>

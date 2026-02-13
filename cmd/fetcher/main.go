@@ -18,7 +18,7 @@ func main() {
 	}
 
 	if len(os.Args) > 1 && os.Args[1] == "test-email" {
-		err := email.TestSend()
+		err := email.TestWeeklyMailSend()
 		if err != nil {
 			panic(err)
 		}
