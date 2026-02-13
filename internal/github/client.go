@@ -148,10 +148,12 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 			continue
 		}
 
+		// 検索用：endDate は金曜日なので、検索範囲は土曜日0時まで（金曜日24時）
+		searchUntil := endDate.AddDate(0, 0, 1)
 		commitOpts := &github.CommitsListOptions{
 			Author:      username,
 			Since:       startDate,
-			Until:       endDate,
+			Until:       searchUntil,
 			ListOptions: github.ListOptions{PerPage: 100},
 		}
 
@@ -170,7 +172,8 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 			}
 
 			commitDate := commit.Commit.Author.GetDate()
-			if commitDate.Before(startDate) || commitDate.After(endDate) {
+			// endDate は金曜日0時なので、検索範囲は土曜日0時（endDate+1日）まで
+			if commitDate.Before(startDate) || !commitDate.Before(endDate.AddDate(0, 0, 1)) {
 				continue
 			}
 
@@ -239,22 +242,31 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 }
 
 // 週間の開始日と終了日を取得
-func getTargetRange() (time.Time, time.Time) {
+// テスト用：特定時刻でのターゲット範囲を計算
+func getTargetRangeAt(at time.Time) (time.Time, time.Time) {
 	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-	now := time.Now().In(jst)
+	now := at.In(jst)
 
-	// 今週の土曜日0時を計算
-	daysUntilSaturday := int(time.Saturday - now.Weekday())
-	if daysUntilSaturday <= 0 {
-		daysUntilSaturday += 7
+	// 最後に経過した土曜日を計算（土曜日0時を基準に、その1週間を対象にする）
+	// time.Weekday: 0=Sunday, 1=Monday, ..., 6=Saturday
+	daysSinceSaturday := (int(now.Weekday()) - int(time.Saturday) + 7) % 7
+	if daysSinceSaturday == 0 {
+		// 今日が土曜日の場合、1週間前の土曜日を基準にする
+		daysSinceSaturday = 7
 	}
 
-	saturdayMidnight := now.AddDate(0, 0, daysUntilSaturday)
-	endDate := time.Date(saturdayMidnight.Year(), saturdayMidnight.Month(), saturdayMidnight.Day(), 0, 0, 0, 0, jst)
+	lastSaturday := now.AddDate(0, 0, -daysSinceSaturday)
+	saturdayDate := time.Date(lastSaturday.Year(), lastSaturday.Month(), lastSaturday.Day(), 0, 0, 0, 0, jst)
 
-	startDate := endDate.AddDate(0, 0, -7)
+	// 開始日は土曜日、終了日は6日後の金曜日（土曜日0時基準で7日間）
+	startDate := saturdayDate
+	endDate := saturdayDate.AddDate(0, 0, 6)
 
 	return startDate, endDate
+}
+
+func getTargetRange() (time.Time, time.Time) {
+	return getTargetRangeAt(time.Now())
 }
 
 func getLanguageFromFilename(filename string) string {

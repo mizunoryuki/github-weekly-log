@@ -265,3 +265,91 @@ func TestActiveDaysCalculation(t *testing.T) {
 		})
 	}
 }
+
+// テスト: ターゲット日付範囲計算
+func TestGetTargetRange(t *testing.T) {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+
+	tests := []struct {
+		name                 string
+		testTime             time.Time // 実行時刻（JST）
+		expectedStartDateStr string    // "2026-02-07" 形式
+		expectedEndDateStr   string
+	}{
+		{
+			name:                 "2月7日（土曜日）に実行",
+			testTime:             time.Date(2026, 2, 7, 10, 0, 0, 0, jst),
+			expectedStartDateStr: "2026-01-31",
+			expectedEndDateStr:   "2026-02-06",
+		},
+		{
+			name:                 "2月8日（日曜日）に実行",
+			testTime:             time.Date(2026, 2, 8, 10, 0, 0, 0, jst),
+			expectedStartDateStr: "2026-02-07",
+			expectedEndDateStr:   "2026-02-13",
+		},
+		{
+			name:                 "2月14日（土曜日）に実行",
+			testTime:             time.Date(2026, 2, 14, 10, 0, 0, 0, jst),
+			expectedStartDateStr: "2026-02-07",
+			expectedEndDateStr:   "2026-02-13",
+		},
+		{
+			name:                 "2月15日（日曜日）に実行",
+			testTime:             time.Date(2026, 2, 15, 10, 0, 0, 0, jst),
+			expectedStartDateStr: "2026-02-14",
+			expectedEndDateStr:   "2026-02-20",
+		},
+		{
+			name:                 "2月20日（金曜日）に実行",
+			testTime:             time.Date(2026, 2, 20, 10, 0, 0, 0, jst),
+			expectedStartDateStr: "2026-02-14",
+			expectedEndDateStr:   "2026-02-20",
+		},
+		{
+			name:                 "2月21日（土曜日）に実行",
+			testTime:             time.Date(2026, 2, 21, 10, 0, 0, 0, jst),
+			expectedStartDateStr: "2026-02-14",
+			expectedEndDateStr:   "2026-02-20",
+		},
+		{
+			name:                 "2月22日（日曜日）に実行",
+			testTime:             time.Date(2026, 2, 22, 10, 0, 0, 0, jst),
+			expectedStartDateStr: "2026-02-21",
+			expectedEndDateStr:   "2026-02-27",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			start, end := getTargetRangeAt(tt.testTime)
+
+			startStr := start.Format("2006-01-02")
+			endStr := end.Format("2006-01-02")
+
+			if startStr != tt.expectedStartDateStr {
+				t.Errorf("Start date: expected %s, got %s", tt.expectedStartDateStr, startStr)
+			}
+			if endStr != tt.expectedEndDateStr {
+				t.Errorf("End date: expected %s, got %s", tt.expectedEndDateStr, endStr)
+			}
+
+			// 検証: 常に7日間の範囲であること
+			expectedDays := 7
+			actualDays := int(end.Sub(start).Hours()/24) + 1
+			if actualDays != expectedDays {
+				t.Errorf("Expected %d days range, got %d days", expectedDays, actualDays)
+			}
+
+			// 検証: StartDate は必ず土曜日であること
+			if start.Weekday() != time.Saturday {
+				t.Errorf("Start date must be Saturday, got %v", start.Weekday())
+			}
+
+			// 検証: EndDate は必ず金曜日であること
+			if end.Weekday() != time.Friday {
+				t.Errorf("End date must be Friday, got %v", end.Weekday())
+			}
+		})
+	}
+}
