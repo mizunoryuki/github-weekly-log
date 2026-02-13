@@ -1,0 +1,40 @@
+<mjml>
+  <mj-head>
+    <mj-title>Weekly Log Test</mj-title>
+    <mj-attributes>
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
+    </mj-attributes>
+  </mj-head>
+  <mj-body background-color="#f4f4f4">
+    <mj-section background-color="#24292e" padding-bottom="0">
+      <mj-column width="100%">
+        <mj-text color="#ffffff" font-size="20px" font-weight="bold">
+          GitHub Weekly Log - Connection Test
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#ffffff" padding-top="20px">
+      <mj-column>
+        <mj-text font-size="16px" color="#333333">
+          これは送信テスト用のメールです。
+        </mj-text>
+        <mj-text color="#586069">
+          現在、GitHub APIからのデータ取得とテンプレートの結合テストを行っています。
+          このメールが正しく表示されていれば、MJMLからHTMLへの変換、およびResendを介した送信ロジックは正常に動作しています。
+        </mj-text>
+        <mj-button background-color="#28a745" color="white" href="https://github.com/mizunoryuki">
+          GitHub Profile を確認
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="0">
+      <mj-column>
+        <mj-text align="center" color="#999999" font-size="12px">
+          &copy; 2026 Mizunoryuki Weekly Log System
+        </mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

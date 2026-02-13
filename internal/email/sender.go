@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github-weekly-log/internal/github"
+	"os"
 	"text/template"
 
 	"github.com/resend/resend-go/v3"
@@ -27,11 +28,11 @@ func LoadTemplate(stats github.WeeklyStats) (string, error) {
 }
 
 // メール送信
-func SendWeeklyReport(apiKey string, htmlContent string, imagePath string) error {
+func SendWeeklyReport(apiKey string, htmlContent string, imagePath string, emailDomain string) error {
 	client := resend.NewClient(apiKey)
 
 	params := &resend.SendEmailRequest{
-		From:    "Acme <onboarding@resend.dev>",
+		From:    "Acme <" + emailDomain + ">",
 		To:      []string{"delivered@resend.dev"},
 		Html:    htmlContent,
 		Subject: "週間コミットレポート",
@@ -45,4 +46,25 @@ func SendWeeklyReport(apiKey string, htmlContent string, imagePath string) error
 	fmt.Println(sent.Id)
 
 	return nil
+}
+
+func TestSend() error {
+	htmlByte, err := os.ReadFile("templates/dist/test.html")
+	if err != nil {
+		return err
+	}
+	apiKey := os.Getenv("RESEND_API_KEY")
+	emailDomain := os.Getenv("RESEND_EMAIL_DOMAIN")
+	emailFrom := "Acme <" + emailDomain + ">"
+	client := resend.NewClient(apiKey)
+
+	params := &resend.SendEmailRequest{
+		From:    emailFrom,
+		To:      []string{"kifimya@instmail.uk"},
+		Subject: "【Test】Weekly Log System Connection Check",
+		Html:    string(htmlByte),
+	}
+
+	_, err = client.Emails.Send(params)
+	return err
 }

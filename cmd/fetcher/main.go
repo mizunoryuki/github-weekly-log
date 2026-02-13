@@ -16,9 +16,19 @@ func main() {
 	if err != nil {
 		panic("Error loading .env file")
 	}
+
+	if len(os.Args) > 1 && os.Args[1] == "test-email" {
+		err := email.TestSend()
+		if err != nil {
+			panic(err)
+		}
+		return
+	}
+
 	GITHUB_TOKEN := os.Getenv("GITHUB_TOKEN")
 	GITHUB_USER := os.Getenv("GITHUB_USER")
-	EMAIL_API_KEY := os.Getenv("EMAIL_API_KEY")
+	EMAIL_API_KEY := os.Getenv("RESEND_API_KEY")
+	EMAIL_DOMAIN := os.Getenv("RESEND_EMAIL_DOMAIN")
 
 	client := github.NewClient(GITHUB_TOKEN)
 
@@ -36,7 +46,7 @@ func main() {
 	}
 
 	// メール送信
-	err = email.SendWeeklyReport(EMAIL_API_KEY, htmlContent, "")
+	err = email.SendWeeklyReport(EMAIL_API_KEY, htmlContent, "", EMAIL_DOMAIN)
 	if err != nil {
 		panic(err)
 	}
