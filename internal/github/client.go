@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"maps"
+	"math"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -42,8 +43,8 @@ type WeeklyStats struct {
 type WeeklyComparison struct {
 	CurrentWeek       *WeeklyStats
 	PreviousWeek      *WeeklyStats
-	CommitsDiff       int     // コミット数の差分
-	CommitsChangeRate float64 // コミット数の変化率（%）
+	CommitsDiff       int // コミット数の差分
+	CommitsChangeRate int // コミット数の変化率（%）
 }
 
 // クライアントの生成
@@ -86,7 +87,8 @@ func (c *Client) FetchWeeklyCommitsWithComparison(ctx context.Context, username 
 
 	// 変化率を計算
 	if previousWeek.TotalCommits > 0 {
-		comparison.CommitsChangeRate = float64(comparison.CommitsDiff) / float64(previousWeek.TotalCommits) * 100
+		rate := float64(comparison.CommitsDiff) / float64(previousWeek.TotalCommits) * 100
+		comparison.CommitsChangeRate = int(math.Round(rate))
 	} else if currentWeek.TotalCommits > 0 {
 		comparison.CommitsChangeRate = 100 // 0から増加した場合は100%とする
 	}
@@ -213,7 +215,7 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 	stats.MainLanguages = filterMainLanguages(stats.LanguageCommits)
 
 	// 7日分のDailyCommitsを生成（コントリビュートグラフ用）
-	stats.DailyCommits = generateDailyCommits(startDate, endDate, stats.CommitDays)
+	stats.DailyCommits = generateDailyCommits(startDate, stats.CommitDays)
 
 	return stats, nil
 }
@@ -223,12 +225,17 @@ func getTargetRange() (time.Time, time.Time) {
 	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	now := time.Now().In(jst)
 
-	// 今週の金曜日21時を終了日時とする
-	// 現在の曜日から金曜日までの日数を計算
-	offset := int(time.Friday - now.Weekday())
+	// 今週の土曜日0時を計算
+	daysUntilSaturday := int(time.Saturday - now.Weekday())
+	if daysUntilSaturday <= 0 {
+		daysUntilSaturday += 7
+	}
 
-	endDate := time.Date(now.Year(), now.Month(), now.Day()+offset, 21, 0, 0, 0, jst)
+	saturdayMidnight := now.AddDate(0, 0, daysUntilSaturday)
+	endDate := time.Date(saturdayMidnight.Year(), saturdayMidnight.Month(), saturdayMidnight.Day(), 0, 0, 0, 0, jst)
+
 	startDate := endDate.AddDate(0, 0, -7)
+
 	return startDate, endDate
 }
 
@@ -261,7 +268,7 @@ func filterMainLanguages(langMap map[string]int) map[string]int {
 }
 
 // 7日分のDailyCommitsを生成（コントリビュートグラフ用）
-func generateDailyCommits(startDate, endDate time.Time, commitDays map[string]int) []DailyCommit {
+func generateDailyCommits(startDate time.Time, commitDays map[string]int) []DailyCommit {
 	weekdays := []string{"日", "月", "火", "水", "木", "金", "土"}
 	dailyCommits := make([]DailyCommit, 0, 7)
 

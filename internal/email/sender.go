@@ -133,7 +133,7 @@ func TestWeeklyMailSend() error {
 			},
 		},
 		CommitsDiff:       12,
-		CommitsChangeRate: 40.0,
+		CommitsChangeRate: 40,
 	}
 
 	tmepl, err := template.ParseFiles("templates/dist/weekly.html")

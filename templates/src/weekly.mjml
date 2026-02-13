@@ -17,12 +17,14 @@
         color: #28a745;
         font-weight: bold;
         margin-left: 8px;
+        font-size: 13px;
       }
 
       .decrease {
         color: #d73a49;
         font-weight: bold;
         margin-left: 8px;
+        font-size: 13px;
       }
 
       .no-change {
@@ -109,17 +111,24 @@
           <mj-text class="stat-label">
             <span>トータルコミット</span>
             <mj-raw>{{if gt .CommitsChangeRate 0.0 }}</mj-raw>
-            <span class="increase">+{{.CommitsChangeRate}}%</span>
+            <span class="increase">(+{{.CommitsChangeRate}}%)</span>
             <mj-raw>
               {{else if lt .CommitsChangeRate 0.0 }}</mj-raw>
-            <span class="decrease">-{{.CommitsChangeRate}}%</span>
+            <span class="decrease">(-{{.CommitsChangeRate}}%)</span>
             <mj-raw>
               {{else}}</mj-raw>
-            <span class="no-change"> 変化なし</span>
+            <span class="no-change"> (変化なし)</span>
             <mj-raw>{{end}}</mj-raw>
           </mj-text>
           <br />
           <span class="stat-value" style="color: #28a745;">{{.CurrentWeek.TotalCommits}}</span>
+          <mj-raw>
+            {{if gt .CommitsDiff 0}}
+            <span class="increase"> (+{{.CommitsDiff}})</span>
+            {{else if lt .CommitsDiff 0}}
+              <span class="decrease"> ({{.CommitsDiff}})</span>
+              {{end}}
+          </mj-raw>
         </mj-text>
       </mj-column>
       <mj-column>
