@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github-weekly-log/internal/email"
 	"github-weekly-log/internal/github"
 	"os"
 	"strings"
@@ -17,6 +18,7 @@ func main() {
 	}
 	GITHUB_TOKEN := os.Getenv("GITHUB_TOKEN")
 	GITHUB_USER := os.Getenv("GITHUB_USER")
+	EMAIL_API_KEY := os.Getenv("EMAIL_API_KEY")
 
 	client := github.NewClient(GITHUB_TOKEN)
 
@@ -26,6 +28,18 @@ func main() {
 	}
 
 	printWeeklyComparison(comparison)
+
+	// HTMLテンプレート読み込み
+	htmlContent, err := email.LoadTemplate(*comparison.CurrentWeek)
+	if err != nil {
+		panic(err)
+	}
+
+	// メール送信
+	err = email.SendWeeklyReport(EMAIL_API_KEY, htmlContent, "")
+	if err != nil {
+		panic(err)
+	}
 
 }
 
