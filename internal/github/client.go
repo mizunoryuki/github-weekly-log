@@ -3,7 +3,9 @@ package github
 import (
 	"context"
 	"fmt"
+	"maps"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -14,10 +16,19 @@ type Client struct {
 	ghClient *github.Client
 }
 
+// 日次コミットデータ
+type DailyCommit struct {
+	Date    time.Time // 日付
+	DateStr string    // "1/2" 形式の日付文字列
+	Weekday string    // "月", "火" など
+	Count   int       // コミット数
+}
+
 // 週間コミットデータ構造体
 type WeeklyStats struct {
 	TotalCommits    int            // 累計コミット数
 	CommitDays      map[string]int // 日付ごとのコミット数
+	DailyCommits    []DailyCommit  // 7日分の日次データ（順序保証）
 	HourlyActivity  [24]int        // 時間帯ごとのコミット数
 	RepoCommits     map[string]int // リポジトリごとのコミット数
 	LanguageCommits map[string]int // 言語ごとのコミット数
@@ -182,10 +193,27 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 		}
 	}
 
+	// CommitDaysを日付の昇順にソート
+	dateKeys := slices.Sorted(maps.Keys(stats.CommitDays))
+	sortedCommitDays := make(map[string]int)
+	for _, date := range dateKeys {
+		sortedCommitDays[date] = stats.CommitDays[date]
+	}
+	stats.CommitDays = sortedCommitDays
 	stats.ActiveDays = len(stats.CommitDays)
+	// 回数0の日付を補完
+	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
+		dateStr := d.Format("2006-01-02")
+		if _, exists := stats.CommitDays[dateStr]; !exists {
+			stats.CommitDays[dateStr] = 0
+		}
+	}
 
 	// 主要言語のみフィルタリング
 	stats.MainLanguages = filterMainLanguages(stats.LanguageCommits)
+
+	// 7日分のDailyCommitsを生成（コントリビュートグラフ用）
+	stats.DailyCommits = generateDailyCommits(startDate, endDate, stats.CommitDays)
 
 	return stats, nil
 }
@@ -230,4 +258,26 @@ func filterMainLanguages(langMap map[string]int) map[string]int {
 		}
 	}
 	return filtered
+}
+
+// 7日分のDailyCommitsを生成（コントリビュートグラフ用）
+func generateDailyCommits(startDate, endDate time.Time, commitDays map[string]int) []DailyCommit {
+	weekdays := []string{"日", "月", "火", "水", "木", "金", "土"}
+	dailyCommits := make([]DailyCommit, 0, 7)
+
+	// 7日分のデータを生成
+	for i := 0; i < 7; i++ {
+		date := startDate.AddDate(0, 0, i)
+		dateKey := date.Format("2006-01-02")
+		count := commitDays[dateKey] // コミットがない日は0
+
+		dailyCommits = append(dailyCommits, DailyCommit{
+			Date:    date,
+			DateStr: date.Format("1/2"),
+			Weekday: weekdays[date.Weekday()],
+			Count:   count,
+		})
+	}
+
+	return dailyCommits
 }

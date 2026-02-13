@@ -3,14 +3,14 @@
     <mj-title>Weekly Commit Report</mj-title>
     <mj-attributes>
       <mj-all font-family="Helvetica, Arial, sans-serif" />
-      <mj-text color="#24292e" />
+      <mj-text color="#9198a1" />
     </mj-attributes>
     <mj-style>
       .stat-label {
         font-size: 16px;
-        color: #586069;
+        color: #e1e8ee;
         font-weight: bold;
-        line-height: 200%
+        line-height: 200%;
       }
 
       .increase {
@@ -35,31 +35,84 @@
         font-size: 32px;
         font-weight: bold;
       }
+
+      /* コントリビュートグラフのボックススタイル */
+      .contrib-box {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .contrib-box-0 {
+        background: #161b21;
+        border: 1px solid #30363d;
+        color: #586069;
+      }
+
+      .contrib-box-low {
+        background: #0e4429;
+        border: 1px solid #0e4429;
+
+      }
+
+      .contrib-box-mid {
+        background: #006d32;
+        border: 1px solid #006d32;
+      }
+
+      .contrib-box-high {
+        background: #26a641;
+        border: 1px solid #26a641;
+      }
+
+      .contrib-box-max {
+        background: #39d353;
+        border: 1px solid #39d353;
+      }
+
+      .contrib-weekday {
+        font-size: 10px;
+        margin-bottom: 4px;
+        font-weight: bold;
+      }
+
+      .contrib-date {
+        font-size: 9px;
+        margin-top: 4px;
+        font-weight: bold;
+      }
     </mj-style>
   </mj-head>
-  <mj-body background-color="#f6f8fa">
+  <mj-body background-color="#0d1116">
 
-    <mj-section background-color="#24292e" padding-bottom="0">
+    <mj-section padding-bottom="0" border-bottom="1px solid #3d444d" background-color="#0d1116">
       <mj-column width="100%">
-        <mj-text color="#ffffff" font-size="24px" font-weight="bold">
+        <mj-text color="#e1e8ee" font-size="24px" font-weight="bold" padding-left="10px">
           Weekly Report
         </mj-text>
-        <mj-text color="#c8e1ff" font-size="16px" padding-top="0">
+        <mj-text color="#9198a1" font-size="14px" padding-top="0" padding-left="10px">
           {{.CurrentWeek.StartDate.Format "1月2日"}} 〜 {{.CurrentWeek.EndDate.Format "1月2日"}}
         </mj-text>
       </mj-column>
     </mj-section>
 
-    <mj-section background-color="#ffffff" border-bottom="1px solid #e1e4e8">
+    <mj-section background-color="#0d1116" border-bottom="1px solid #3d444d">
       <mj-column>
         <mj-text align="center">
           <mj-text class="stat-label">
             <span>トータルコミット</span>
             <mj-raw>{{if gt .CommitsChangeRate 0.0 }}</mj-raw>
-            <span class="increase">+ {{.CommitsChangeRate}}%</span>
+            <span class="increase">+{{.CommitsChangeRate}}%</span>
             <mj-raw>
               {{else if lt .CommitsChangeRate 0.0 }}</mj-raw>
-            <span class="decrease">- {{.CommitsChangeRate}}%</span>
+            <span class="decrease">-{{.CommitsChangeRate}}%</span>
             <mj-raw>
               {{else}}</mj-raw>
             <span class="no-change"> 変化なし</span>
@@ -81,19 +134,187 @@
       </mj-column>
     </mj-section>
 
-    <mj-section background-color="#ffffff" padding-top="10px">
+    <!-- コントリビュートグラフ -->
+    <mj-section background-color="#0d1116" padding-top="8px" padding-bottom="8px">
       <mj-column width="100%">
-        <mj-text font-size="16px" font-weight="bold" padding-left="10px">
+        <mj-text font-size="14px" font-weight="bold" padding-left="10px" color="#e1e8ee" padding-bottom="0">
+          頑張りゲージ
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="8px" padding-bottom="16px" border-bottom="1px solid #3d444d">
+      <mj-raw>
+        {{$days := .CurrentWeek.DailyCommits}}
+      </mj-raw>
+
+      <!-- 1日目 -->
+      <mj-column width="14.28%">
+        <mj-text align="center" padding="2px">
+          <mj-raw>
+            {{$day := index $days 0}}
+            <div class="contrib-weekday">{{$day.Weekday}}</div>
+            {{if eq $day.Count 0}}
+            <div class="contrib-box contrib-box-0">{{$day.Count}}</div>
+            {{else if le $day.Count 3}}
+              <div class="contrib-box contrib-box-low">{{$day.Count}}</div>
+              {{else if le $day.Count 9}}
+                <div class="contrib-box contrib-box-mid">{{$day.Count}}</div>
+                {{else if le $day.Count 19}}
+                  <div class="contrib-box contrib-box-high">{{$day.Count}}</div>
+                  {{else}}
+                    <div class="contrib-box contrib-box-max">{{$day.Count}}</div>
+                    {{end}}
+                    <div class="contrib-date">{{$day.DateStr}}</div>
+          </mj-raw>
+        </mj-text>
+      </mj-column>
+
+      <!-- 2日目 -->
+      <mj-column width="14.28%">
+        <mj-text align="center" padding="2px">
+          <mj-raw>
+            {{$day := index $days 1}}
+            <div class="contrib-weekday">{{$day.Weekday}}</div>
+            {{if eq $day.Count 0}}
+            <div class="contrib-box contrib-box-0">{{$day.Count}}</div>
+            {{else if le $day.Count 3}}
+              <div class="contrib-box contrib-box-low">{{$day.Count}}</div>
+              {{else if le $day.Count 9}}
+                <div class="contrib-box contrib-box-mid">{{$day.Count}}</div>
+                {{else if le $day.Count 19}}
+                  <div class="contrib-box contrib-box-high">{{$day.Count}}</div>
+                  {{else}}
+                    <div class="contrib-box contrib-box-max">{{$day.Count}}</div>
+                    {{end}}
+                    <div class="contrib-date">{{$day.DateStr}}</div>
+          </mj-raw>
+        </mj-text>
+      </mj-column>
+
+      <!-- 3日目 -->
+      <mj-column width="14.28%">
+        <mj-text align="center" padding="2px">
+          <mj-raw>
+            {{$day := index $days 2}}
+            <div class="contrib-weekday">{{$day.Weekday}}</div>
+            {{if eq $day.Count 0}}
+            <div class="contrib-box contrib-box-0">{{$day.Count}}</div>
+            {{else if le $day.Count 3}}
+              <div class="contrib-box contrib-box-low">{{$day.Count}}</div>
+              {{else if le $day.Count 9}}
+                <div class="contrib-box contrib-box-mid">{{$day.Count}}</div>
+                {{else if le $day.Count 19}}
+                  <div class="contrib-box contrib-box-high">{{$day.Count}}</div>
+                  {{else}}
+                    <div class="contrib-box contrib-box-max">{{$day.Count}}</div>
+                    {{end}}
+                    <div class="contrib-date">{{$day.DateStr}}</div>
+          </mj-raw>
+        </mj-text>
+      </mj-column>
+
+      <!-- 4日目 -->
+      <mj-column width="14.28%">
+        <mj-text align="center" padding="2px">
+          <mj-raw>
+            {{$day := index $days 3}}
+            <div class="contrib-weekday">{{$day.Weekday}}</div>
+            {{if eq $day.Count 0}}
+            <div class="contrib-box contrib-box-0">{{$day.Count}}</div>
+            {{else if le $day.Count 3}}
+              <div class="contrib-box contrib-box-low">{{$day.Count}}</div>
+              {{else if le $day.Count 9}}
+                <div class="contrib-box contrib-box-mid">{{$day.Count}}</div>
+                {{else if le $day.Count 19}}
+                  <div class="contrib-box contrib-box-high">{{$day.Count}}</div>
+                  {{else}}
+                    <div class="contrib-box contrib-box-max">{{$day.Count}}</div>
+                    {{end}}
+                    <div class="contrib-date">{{$day.DateStr}}</div>
+          </mj-raw>
+        </mj-text>
+      </mj-column>
+
+      <!-- 5日目 -->
+      <mj-column width="14.28%">
+        <mj-text align="center" padding="2px">
+          <mj-raw>
+            {{$day := index $days 4}}
+            <div class="contrib-weekday">{{$day.Weekday}}</div>
+            {{if eq $day.Count 0}}
+            <div class="contrib-box contrib-box-0">{{$day.Count}}</div>
+            {{else if le $day.Count 3}}
+              <div class="contrib-box contrib-box-low">{{$day.Count}}</div>
+              {{else if le $day.Count 9}}
+                <div class="contrib-box contrib-box-mid">{{$day.Count}}</div>
+                {{else if le $day.Count 19}}
+                  <div class="contrib-box contrib-box-high">{{$day.Count}}</div>
+                  {{else}}
+                    <div class="contrib-box contrib-box-max">{{$day.Count}}</div>
+                    {{end}}
+                    <div class="contrib-date">{{$day.DateStr}}</div>
+          </mj-raw>
+        </mj-text>
+      </mj-column>
+
+      <!-- 6日目 -->
+      <mj-column width="14.28%">
+        <mj-text align="center" padding="2px">
+          <mj-raw>
+            {{$day := index $days 5}}
+            <div class="contrib-weekday">{{$day.Weekday}}</div>
+            {{if eq $day.Count 0}}
+            <div class="contrib-box contrib-box-0">{{$day.Count}}</div>
+            {{else if le $day.Count 3}}
+              <div class="contrib-box contrib-box-low">{{$day.Count}}</div>
+              {{else if le $day.Count 9}}
+                <div class="contrib-box contrib-box-mid">{{$day.Count}}</div>
+                {{else if le $day.Count 19}}
+                  <div class="contrib-box contrib-box-high">{{$day.Count}}</div>
+                  {{else}}
+                    <div class="contrib-box contrib-box-max">{{$day.Count}}</div>
+                    {{end}}
+                    <div class="contrib-date">{{$day.DateStr}}</div>
+          </mj-raw>
+        </mj-text>
+      </mj-column>
+
+      <!-- 7日目 -->
+      <mj-column width="14.28%">
+        <mj-text align="center" padding="2px">
+          <mj-raw>
+            {{$day := index $days 6}}
+            <div class="contrib-weekday">{{$day.Weekday}}</div>
+            {{if eq $day.Count 0}}
+            <div class="contrib-box contrib-box-0">{{$day.Count}}</div>
+            {{else if le $day.Count 3}}
+              <div class="contrib-box contrib-box-low">{{$day.Count}}</div>
+              {{else if le $day.Count 9}}
+                <div class="contrib-box contrib-box-mid">{{$day.Count}}</div>
+                {{else if le $day.Count 19}}
+                  <div class="contrib-box contrib-box-high">{{$day.Count}}</div>
+                  {{else}}
+                    <div class="contrib-box contrib-box-max">{{$day.Count}}</div>
+                    {{end}}
+                    <div class="contrib-date">{{$day.DateStr}}</div>
+          </mj-raw>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section background-color="#0d1116" padding-top="10px" border-bottom="1px solid #3d444d">
+      <mj-column width="100%">
+        <mj-text font-size="16px" font-weight="bold" padding-left="10px" color="#e1e8ee">
           リポジトリ別活動
         </mj-text>
 
         <mj-raw>{{range $repo, $count := .CurrentWeek.RepoCommits}}</mj-raw>
-        <!-- テキスト部分 -->
         <mj-text padding-top="4px" padding-bottom="2px">
           <span style="font-weight: 600;">
-            <a href="https://github.com/mizunoryuki/{{$repo}}" style="color: #0366d6; text-decoration: none;">{{$repo}}</a>
+            <a href="https://github.com/mizunoryuki/{{$repo}}" style="color: #3081f7; text-decoration: none;">{{$repo}}</a>
           </span>
-          <span style="float: right; color: #24292e; font-weight: 700;">{{$count}}</span>
+          <span style="float: right; font-weight: 700;">{{$count}}</span>
         </mj-text>
 
         <mj-text padding-top="0" padding-bottom="8px">
@@ -115,10 +336,9 @@
       </mj-column>
     </mj-section>
 
-    <mj-section background-color="#ffffff" padding-top="0">
+    <mj-section background-color="#0d1116" padding-top="10px" border-bottom="1px solid #3d444d">
       <mj-column width="100%">
-        <mj-divider border-width="1px" border-color="#e1e4e8" />
-        <mj-text font-size="16px" font-weight="bold" padding-left="10px">
+        <mj-text font-size="16px" font-weight="bold" padding-left="10px" color="#e1e8ee">
           主要言語の変更ファイル数
         </mj-text>
         <mj-raw>{{range $lang, $count := .CurrentWeek.MainLanguages}}</mj-raw>
@@ -129,9 +349,9 @@
       </mj-column>
     </mj-section>
 
-    <mj-section>
+    <mj-section background-color="#0d1116" padding-top="10px" padding-bottom="20px">
       <mj-column>
-        <mj-text align="center" color="#586069" font-size="12px">
+        <mj-text align="center" color="#9198a1" font-size="12px">
           Sent by GitHub Weekly Log System<br />
         </mj-text>
       </mj-column>

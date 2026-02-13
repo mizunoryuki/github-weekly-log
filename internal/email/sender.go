@@ -74,13 +74,25 @@ func TestSend() error {
 func TestWeeklyMailSend() error {
 
 	now := time.Now()
+	startDate := now.AddDate(0, 0, -7)
+	prevStartDate := now.AddDate(0, 0, -14)
+	weekdays := []string{"日", "月", "火", "水", "木", "金", "土"}
 
 	// モックデータ
 	stats := github.WeeklyStats{
 		TotalCommits: 42,
 		ActiveDays:   5,
-		StartDate:    now.AddDate(0, 0, -7),
+		StartDate:    startDate,
 		EndDate:      now,
+		DailyCommits: []github.DailyCommit{
+			{Date: startDate, DateStr: startDate.Format("1/2"), Weekday: weekdays[startDate.Weekday()], Count: 5},
+			{Date: startDate.AddDate(0, 0, 1), DateStr: startDate.AddDate(0, 0, 1).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 1).Weekday()], Count: 12},
+			{Date: startDate.AddDate(0, 0, 2), DateStr: startDate.AddDate(0, 0, 2).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 2).Weekday()], Count: 0},
+			{Date: startDate.AddDate(0, 0, 3), DateStr: startDate.AddDate(0, 0, 3).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 3).Weekday()], Count: 8},
+			{Date: startDate.AddDate(0, 0, 4), DateStr: startDate.AddDate(0, 0, 4).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 4).Weekday()], Count: 15},
+			{Date: startDate.AddDate(0, 0, 5), DateStr: startDate.AddDate(0, 0, 5).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 5).Weekday()], Count: 2},
+			{Date: startDate.AddDate(0, 0, 6), DateStr: startDate.AddDate(0, 0, 6).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 6).Weekday()], Count: 0},
+		},
 		RepoCommits: map[string]int{
 			"awesome-project": 25,
 			"go-utils":        12,
@@ -92,13 +104,23 @@ func TestWeeklyMailSend() error {
 			"Python":     30,
 		},
 	}
+
 	comparison := github.WeeklyComparison{
 		CurrentWeek: &stats,
 		PreviousWeek: &github.WeeklyStats{
 			TotalCommits: 30,
 			ActiveDays:   4,
-			StartDate:    now.AddDate(0, 0, -14),
+			StartDate:    prevStartDate,
 			EndDate:      now.AddDate(0, 0, -7),
+			DailyCommits: []github.DailyCommit{
+				{Date: prevStartDate, DateStr: prevStartDate.Format("1/2"), Weekday: weekdays[prevStartDate.Weekday()], Count: 3},
+				{Date: prevStartDate.AddDate(0, 0, 1), DateStr: prevStartDate.AddDate(0, 0, 1).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 1).Weekday()], Count: 8},
+				{Date: prevStartDate.AddDate(0, 0, 2), DateStr: prevStartDate.AddDate(0, 0, 2).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 2).Weekday()], Count: 0},
+				{Date: prevStartDate.AddDate(0, 0, 3), DateStr: prevStartDate.AddDate(0, 0, 3).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 3).Weekday()], Count: 12},
+				{Date: prevStartDate.AddDate(0, 0, 4), DateStr: prevStartDate.AddDate(0, 0, 4).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 4).Weekday()], Count: 7},
+				{Date: prevStartDate.AddDate(0, 0, 5), DateStr: prevStartDate.AddDate(0, 0, 5).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 5).Weekday()], Count: 0},
+				{Date: prevStartDate.AddDate(0, 0, 6), DateStr: prevStartDate.AddDate(0, 0, 6).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 6).Weekday()], Count: 0},
+			},
 			RepoCommits: map[string]int{
 				"awesome-project": 18,
 				"go-utils":        8,
