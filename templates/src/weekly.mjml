@@ -23,14 +23,16 @@
       </mj-column>
     </mj-section>
 
-    <mj-section background-color="#ffffff" padding-top="0">
-      <mj-column width="100%">
-        <mj-divider border-width="1px" border-color="#e1e4e8" />
-        <mj-text font-weight="bold">Languages Summay</mj-text>
-        {{range $lang, $count := .Languages}}
-        <mj-text padding-bottom="0">{{$lang}}: {{$count}} changes</mj-text>
-        {{end}}
-      </mj-column>
-    </mj-section>
+	<mj-section background-color="#ffffff" padding-top="0">
+		<mj-column width="100%">
+			<mj-divider border-width="1px" border-color="#e1e4e8" />
+			<mj-text font-weight="bold">Languages Summay</mj-text>
+			
+			<mj-raw>{{range $lang, $count := .LanguageCommits}}</mj-raw>
+			<mj-text padding-bottom="0">{{$lang}}: {{$count}} commits</mj-text>
+			<mj-raw>{{end}}</mj-raw>
+			
+		</mj-column>
+	</mj-section>
   </mj-body>
 </mjml>

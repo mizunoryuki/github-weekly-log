@@ -14,26 +14,26 @@ import (
 func LoadTemplate(stats github.WeeklyStats) (string, error) {
 	tmpl, err := template.ParseFiles("templates/dist/weekly.html")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("テンプレート読み込み失敗: %w", err)
 	}
 
 	// データをテンプレートに埋め込む
 	var buf bytes.Buffer
 	// Executeでデータを埋め込む
 	if err := tmpl.Execute(&buf, stats); err != nil {
-		return "", err
+		return "", fmt.Errorf("テンプレート実行失敗: %w", err)
 	}
 
 	return buf.String(), nil
 }
 
 // メール送信
-func SendWeeklyReport(apiKey string, htmlContent string, imagePath string, emailDomain string) error {
+func SendWeeklyReport(apiKey string, htmlContent string, imagePath string, emailDomain string, emailTo string) error {
 	client := resend.NewClient(apiKey)
 
 	params := &resend.SendEmailRequest{
 		From:    "Acme <" + emailDomain + ">",
-		To:      []string{"delivered@resend.dev"},
+		To:      []string{emailTo},
 		Html:    htmlContent,
 		Subject: "週間コミットレポート",
 	}
@@ -55,12 +55,13 @@ func TestSend() error {
 	}
 	apiKey := os.Getenv("RESEND_API_KEY")
 	emailDomain := os.Getenv("RESEND_EMAIL_DOMAIN")
+	emailTo := os.Getenv("TEST_RESEND_EMAIL_TO")
 	emailFrom := "Acme <" + emailDomain + ">"
 	client := resend.NewClient(apiKey)
 
 	params := &resend.SendEmailRequest{
 		From:    emailFrom,
-		To:      []string{"kifimya@instmail.uk"},
+		To:      []string{emailTo},
 		Subject: "【Test】Weekly Log System Connection Check",
 		Html:    string(htmlByte),
 	}

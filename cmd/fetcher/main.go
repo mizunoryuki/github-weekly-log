@@ -29,24 +29,30 @@ func main() {
 	GITHUB_USER := os.Getenv("GITHUB_USER")
 	EMAIL_API_KEY := os.Getenv("RESEND_API_KEY")
 	EMAIL_DOMAIN := os.Getenv("RESEND_EMAIL_DOMAIN")
+	EMAIL_TO := os.Getenv("RESEND_EMAIL_TO")
 
 	client := github.NewClient(GITHUB_TOKEN)
 
+	fmt.Println("Start scanning")
 	comparison, err := client.FetchWeeklyCommitsWithComparison(context.Background(), GITHUB_USER)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Finished scanning")
 
+	// 結果表示
 	printWeeklyComparison(comparison)
 
+	fmt.Println("Load HTML template")
 	// HTMLテンプレート読み込み
 	htmlContent, err := email.LoadTemplate(*comparison.CurrentWeek)
 	if err != nil {
 		panic(err)
 	}
 
+	fmt.Println("Send weekly report email")
 	// メール送信
-	err = email.SendWeeklyReport(EMAIL_API_KEY, htmlContent, "", EMAIL_DOMAIN)
+	err = email.SendWeeklyReport(EMAIL_API_KEY, htmlContent, "", EMAIL_DOMAIN, EMAIL_TO)
 	if err != nil {
 		panic(err)
 	}

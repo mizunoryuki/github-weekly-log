@@ -23,6 +23,7 @@ type WeeklyStats struct {
 	LanguageCommits map[string]int // 言語ごとのコミット数
 	StartDate       time.Time      // 週間開始日
 	EndDate         time.Time      // 週間終了日
+	ActiveDays      int            // コミットがあった日数
 }
 
 // 前週比較データ構造体
@@ -178,6 +179,8 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 			}
 		}
 	}
+
+	stats.ActiveDays = len(stats.CommitDays)
 
 	return stats, nil
 }
