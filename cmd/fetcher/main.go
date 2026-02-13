@@ -82,9 +82,9 @@ func printWeeklyComparison(comp *github.WeeklyComparison) {
 
 	// 差分と変化率を表示
 	if comp.CommitsDiff > 0 {
-		fmt.Printf("  📈 %+d (%.1f%% 増加)\n", comp.CommitsDiff, comp.CommitsChangeRate)
+		fmt.Printf("  📈 %+d (%d%% 増加)\n", comp.CommitsDiff, comp.CommitsChangeRate)
 	} else if comp.CommitsDiff < 0 {
-		fmt.Printf("  📉 %d (%.1f%% 減少)\n", comp.CommitsDiff, -comp.CommitsChangeRate)
+		fmt.Printf("  📉 %d (%d%% 減少)\n", comp.CommitsDiff, -comp.CommitsChangeRate)
 	} else {
 		fmt.Printf("  ➡️  変化なし\n")
 	}

@@ -158,9 +158,6 @@ func TestWeeklyMailSend() error {
 		Html:    buf.String(),
 		Subject: "週間コミットレポート（テスト送信）",
 	}
-	if err != nil {
-		return err
-	}
 	_, err = client.Emails.Send(params)
 	if err != nil {
 		return err

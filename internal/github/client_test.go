@@ -63,12 +63,6 @@ func TestCommitsChangeRateCalculation(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			// モック WeeklyComparison を作成
 			comparison := &WeeklyComparison{
-				CurrentWeek: &WeeklyStats{
-					TotalCommits: tt.currentWeekCommits,
-				},
-				PreviousWeek: &WeeklyStats{
-					TotalCommits: tt.previousWeekCommits,
-				},
 				CommitsDiff: tt.currentWeekCommits - tt.previousWeekCommits,
 			}
 
