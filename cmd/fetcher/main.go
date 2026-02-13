@@ -45,7 +45,7 @@ func main() {
 
 	fmt.Println("Load HTML template")
 	// HTMLテンプレート読み込み
-	htmlContent, err := email.LoadTemplate(*comparison.CurrentWeek)
+	htmlContent, err := email.LoadTemplate(*comparison)
 	if err != nil {
 		panic(err)
 	}

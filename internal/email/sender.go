@@ -12,7 +12,7 @@ import (
 )
 
 // templateを読み込み、ファイルにデータを埋め込む
-func LoadTemplate(stats github.WeeklyStats) (string, error) {
+func LoadTemplate(comparison github.WeeklyComparison) (string, error) {
 	tmpl, err := template.ParseFiles("templates/dist/weekly.html")
 	if err != nil {
 		return "", fmt.Errorf("テンプレート読み込み失敗: %w", err)
@@ -21,7 +21,7 @@ func LoadTemplate(stats github.WeeklyStats) (string, error) {
 	// データをテンプレートに埋め込む
 	var buf bytes.Buffer
 	// Executeでデータを埋め込む
-	if err := tmpl.Execute(&buf, stats); err != nil {
+	if err := tmpl.Execute(&buf, comparison); err != nil {
 		return "", fmt.Errorf("テンプレート実行失敗: %w", err)
 	}
 
@@ -136,7 +136,6 @@ func TestWeeklyMailSend() error {
 		Html:    buf.String(),
 		Subject: "週間コミットレポート（テスト送信）",
 	}
-	fmt.Println(params)
 	if err != nil {
 		return err
 	}

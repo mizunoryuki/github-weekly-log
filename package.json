@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:email": "mjml templates/src/weekly.mjml -o templates/dist/weekly.html"
+    "build:email": "mjml templates/src/weekly.mjml -o templates/dist/weekly.html",
+    "build:test" : "mjml templates/src/test.mjml -o templates/dist/test.html"
   },
   "keywords": [],
   "author": "",

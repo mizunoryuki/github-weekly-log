@@ -6,20 +6,45 @@
       <mj-text color="#24292e" />
     </mj-attributes>
     <mj-style>
-      .stat-label { font-size: 14px; color: #586069; }
-      .stat-value { font-size: 32px; font-weight: bold; }
-      .diff-plus { color: #28a745; font-size: 14px; font-weight: bold; }
-      .diff-minus { color: #d73a49; font-size: 14px; font-weight: bold; }
+      .stat-label {
+        font-size: 16px;
+        color: #586069;
+        font-weight: bold;
+        line-height: 200%
+      }
+
+      .increase {
+        color: #28a745;
+        font-weight: bold;
+        margin-left: 8px;
+      }
+
+      .decrease {
+        color: #d73a49;
+        font-weight: bold;
+        margin-left: 8px;
+      }
+
+      .no-change {
+        color: #999999;
+        font-weight: bold;
+        margin-left: 8px;
+      }
+
+      .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+      }
     </mj-style>
   </mj-head>
   <mj-body background-color="#f6f8fa">
 
     <mj-section background-color="#24292e" padding-bottom="0">
       <mj-column width="100%">
-        <mj-text color="#ffffff" font-size="20px" font-weight="bold">
+        <mj-text color="#ffffff" font-size="24px" font-weight="bold">
           Weekly Report
         </mj-text>
-        <mj-text color="#c8e1ff" font-size="12px" padding-top="0">
+        <mj-text color="#c8e1ff" font-size="16px" padding-top="0">
           {{.CurrentWeek.StartDate.Format "1月2日"}} 〜 {{.CurrentWeek.EndDate.Format "1月2日"}}
         </mj-text>
       </mj-column>
@@ -28,21 +53,28 @@
     <mj-section background-color="#ffffff" border-bottom="1px solid #e1e4e8">
       <mj-column>
         <mj-text align="center">
-          <span class="stat-label">トータルコミット</span><br />
-          <span class="stat-value" style="color: #28a745;">{{.CurrentWeek.TotalCommits}}</span>
+          <mj-text class="stat-label">
+            <span>トータルコミット</span>
+            <mj-raw>{{if gt .CommitsChangeRate 0.0 }}</mj-raw>
+            <span class="increase">+ {{.CommitsChangeRate}}%</span>
+            <mj-raw>
+              {{else if lt .CommitsChangeRate 0.0 }}</mj-raw>
+            <span class="decrease">- {{.CommitsChangeRate}}%</span>
+            <mj-raw>
+              {{else}}</mj-raw>
+            <span class="no-change"> 変化なし</span>
+            <mj-raw>{{end}}</mj-raw>
+          </mj-text>
           <br />
-          <mj-raw>{{if gt .CommitsDiff 0}}</mj-raw>
-            <span class="diff-plus">▲ {{printf "%.1f" .CommitsChangeRate}}%</span>
-          <mj-raw>{{else if lt .CommitsDiff 0}}</mj-raw>
-            <span class="diff-minus">▼ {{printf "%.1f" .CommitsChangeRate}}%</span>
-          <mj-raw>{{else}}</mj-raw>
-            <span class="stat-label">±0%</span>
-          <mj-raw>{{end}}</mj-raw>
+          <span class="stat-value" style="color: #28a745;">{{.CurrentWeek.TotalCommits}}</span>
         </mj-text>
       </mj-column>
       <mj-column>
         <mj-text align="center">
-          <span class="stat-label">活動日数</span><br />
+          <mj-text class="stat-label">
+            <span>活動日数</span>
+          </mj-text>
+          <br />
           <span class="stat-value" style="color: #0366d6;">{{.CurrentWeek.ActiveDays}}</span>
           <span style="font-size: 16px; color: #586069;"> / 7 days</span>
         </mj-text>
@@ -51,13 +83,34 @@
 
     <mj-section background-color="#ffffff" padding-top="10px">
       <mj-column width="100%">
-        <mj-text font-size="16px" font-weight="bold"  padding-left="10px">
+        <mj-text font-size="16px" font-weight="bold" padding-left="10px">
           リポジトリ別活動
         </mj-text>
+
         <mj-raw>{{range $repo, $count := .CurrentWeek.RepoCommits}}</mj-raw>
-          <mj-text padding-top="0" padding-bottom="5px">
-            <code style="background: #f1f8ff; padding: 2px 4px;">{{$repo}}</code> : <b>{{$count}}</b> commits
-          </mj-text>
+        <!-- テキスト部分 -->
+        <mj-text padding-top="4px" padding-bottom="2px">
+          <span style="font-weight: 600;">
+            <a href="https://github.com/mizunoryuki/{{$repo}}" style="color: #0366d6; text-decoration: none;">{{$repo}}</a>
+          </span>
+          <span style="float: right; color: #24292e; font-weight: 700;">{{$count}}</span>
+        </mj-text>
+
+        <mj-text padding-top="0" padding-bottom="8px">
+          <div style="width: 100%; height: 6px; background: #e1e4e8; border-radius: 4px; font-size: 0; line-height: 0;">
+            {{if lt $count 5}}
+            <div style="height: 6px; background: #28a745; border-radius: 4px; width: 40px;">&nbsp;</div>
+            {{else if lt $count 10}}
+              <div style="height: 6px; background: #28a745; border-radius: 4px; width: 80px;">&nbsp;</div>
+              {{else if lt $count 20}}
+                <div style="height: 6px; background: #28a745; border-radius: 4px; width: 140px;">&nbsp;</div>
+                {{else if lt $count 40}}
+                  <div style="height: 6px; background: #28a745; border-radius: 4px; width: 220px;">&nbsp;</div>
+                  {{else}}
+                    <div style="height: 100%; max-width: 100%; background: #28a745; border-radius: 4px; width: 320px;">&nbsp;</div>
+                    {{end}}
+          </div>
+        </mj-text>
         <mj-raw>{{end}}</mj-raw>
       </mj-column>
     </mj-section>
@@ -69,9 +122,9 @@
           主要言語の変更ファイル数
         </mj-text>
         <mj-raw>{{range $lang, $count := .CurrentWeek.MainLanguages}}</mj-raw>
-          <mj-text padding-top="0" padding-bottom="5px">
-            {{$lang}}: <b>{{$count}}</b> files changed
-          </mj-text>
+        <mj-text padding-top="0" padding-bottom="5px">
+          {{$lang}}: <b>{{$count}}</b> files changed
+        </mj-text>
         <mj-raw>{{end}}</mj-raw>
       </mj-column>
     </mj-section>
@@ -80,7 +133,6 @@
       <mj-column>
         <mj-text align="center" color="#586069" font-size="12px">
           Sent by GitHub Weekly Log System<br />
-          Next report: {{(.CurrentWeek.EndDate.AddDate 0 0 7).Format "1月2日"}}
         </mj-text>
       </mj-column>
     </mj-section>
