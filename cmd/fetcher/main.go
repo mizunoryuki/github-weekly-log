@@ -94,17 +94,28 @@ func printWeeklyComparison(comp *github.WeeklyComparison) {
 	fmt.Println("  リポジトリ名          今週  先週  差分")
 	fmt.Println("  " + strings.Repeat("-", 45))
 
+	// RepoDetails から map を生成
+	currentRepos := make(map[string]int)
+	for _, repo := range current.RepoDetails {
+		currentRepos[repo.Name] = repo.Count
+	}
+
+	previousRepos := make(map[string]int)
+	for _, repo := range previous.RepoDetails {
+		previousRepos[repo.Name] = repo.Count
+	}
+
 	allRepos := make(map[string]bool)
-	for repo := range current.RepoCommits {
+	for repo := range currentRepos {
 		allRepos[repo] = true
 	}
-	for repo := range previous.RepoCommits {
+	for repo := range previousRepos {
 		allRepos[repo] = true
 	}
 
 	for repo := range allRepos {
-		currentCount := current.RepoCommits[repo]
-		previousCount := previous.RepoCommits[repo]
+		currentCount := currentRepos[repo]
+		previousCount := previousRepos[repo]
 		diff := currentCount - previousCount
 
 		diffStr := ""

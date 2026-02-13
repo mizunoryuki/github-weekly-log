@@ -110,10 +110,10 @@
         <mj-text align="center">
           <mj-text class="stat-label">
             <span>トータルコミット</span>
-            <mj-raw>{{if gt .CommitsChangeRate 0.0 }}</mj-raw>
+            <mj-raw>{{if gt .CommitsChangeRate 0 }}</mj-raw>
             <span class="increase">(+{{.CommitsChangeRate}}%)</span>
             <mj-raw>
-              {{else if lt .CommitsChangeRate 0.0 }}</mj-raw>
+              {{else if lt .CommitsChangeRate 0 }}</mj-raw>
             <span class="decrease">(-{{.CommitsChangeRate}}%)</span>
             <mj-raw>
               {{else}}</mj-raw>
@@ -318,28 +318,20 @@
           リポジトリ別活動
         </mj-text>
 
-        <mj-raw>{{range $repo, $count := .CurrentWeek.RepoCommits}}</mj-raw>
+        <mj-raw>{{range .CurrentWeek.RepoDetails}}</mj-raw>
         <mj-text padding-top="4px" padding-bottom="2px">
           <span style="font-weight: 600;">
-            <a href="https://github.com/mizunoryuki/{{$repo}}" style="color: #3081f7; text-decoration: none;">{{$repo}}</a>
+            <a href="https://github.com/mizunoryuki/{{.Name}}" style="color: #3081f7; text-decoration: none;">{{.Name}}</a>
           </span>
-          <span style="float: right; font-weight: 700;">{{$count}}</span>
+          <span style="float: right; font-weight: 700;">{{.Count}}</span>
         </mj-text>
 
         <mj-text padding-top="0" padding-bottom="8px">
-          <div style="width: 100%; height: 6px; background: #e1e4e8; border-radius: 4px; font-size: 0; line-height: 0;">
-            {{if lt $count 5}}
-            <div style="height: 6px; background: #28a745; border-radius: 4px; width: 40px;">&nbsp;</div>
-            {{else if lt $count 10}}
-              <div style="height: 6px; background: #28a745; border-radius: 4px; width: 80px;">&nbsp;</div>
-              {{else if lt $count 20}}
-                <div style="height: 6px; background: #28a745; border-radius: 4px; width: 140px;">&nbsp;</div>
-                {{else if lt $count 40}}
-                  <div style="height: 6px; background: #28a745; border-radius: 4px; width: 220px;">&nbsp;</div>
-                  {{else}}
-                    <div style="height: 100%; max-width: 100%; background: #28a745; border-radius: 4px; width: 320px;">&nbsp;</div>
-                    {{end}}
-          </div>
+          <mj-raw>
+            <div style="width: 100%; height: 6px; background: #e1e4e8; border-radius: 4px; font-size: 0; line-height: 0;">
+              <div style="height: 6px; background: #28a745; border-radius: 4px; width: TEMPLATE_BAR_WIDTH; min-width: 4px;">&nbsp;</div>
+            </div>
+          </mj-raw>
         </mj-text>
         <mj-raw>{{end}}</mj-raw>
       </mj-column>

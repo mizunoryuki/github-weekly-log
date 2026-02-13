@@ -25,18 +25,24 @@ type DailyCommit struct {
 	Count   int       // コミット数
 }
 
+// リポジトリの詳細情報
+type RepoDetail struct {
+	Name       string  // リポジトリ名
+	Count      int     // コミット数
+	BarPercent float64 // バー幅（0-100%）
+}
+
 // 週間コミットデータ構造体
 type WeeklyStats struct {
 	TotalCommits    int            // 累計コミット数
-	CommitDays      map[string]int // 日付ごとのコミット数
 	DailyCommits    []DailyCommit  // 7日分の日次データ（順序保証）
 	HourlyActivity  [24]int        // 時間帯ごとのコミット数
-	RepoCommits     map[string]int // リポジトリごとのコミット数
+	RepoDetails     []RepoDetail   // リポジトリの詳細情報（バー幅計算済み）
 	LanguageCommits map[string]int // 言語ごとのコミット数
 	MainLanguages   map[string]int // 主要言語ごとのコミット数
 	StartDate       time.Time      // 週間開始日
 	EndDate         time.Time      // 週間終了日
-	ActiveDays      int            // コミットがあった日数
+	ActiveDays      int            // コミットがあった日数（DailyCommits から計算）
 }
 
 // 前週比較データ構造体
@@ -99,13 +105,15 @@ func (c *Client) FetchWeeklyCommitsWithComparison(ctx context.Context, username 
 // 指定期間のコミットデータを取得（内部用）
 func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string, startDate, endDate time.Time) (*WeeklyStats, error) {
 	stats := &WeeklyStats{
-		CommitDays:      make(map[string]int),
-		RepoCommits:     make(map[string]int),
 		LanguageCommits: make(map[string]int),
 		MainLanguages:   make(map[string]int),
 		StartDate:       startDate,
 		EndDate:         endDate,
 	}
+
+	// 内部用：日付ごと、リポジトリごとのコミット数を一時保持
+	commitDays := make(map[string]int)
+	repoCommits := make(map[string]int)
 
 	// ユーザーのリポジトリ一覧を取得
 	opts := &github.RepositoryListByAuthenticatedUserOptions{
@@ -170,11 +178,11 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 
 			jst := commitDate.In(time.FixedZone("Asia/Tokyo", 9*60*60))
 			dateStr := jst.Format("2006-01-02")
-			stats.CommitDays[dateStr]++
+			commitDays[dateStr]++
 			stats.HourlyActivity[jst.Hour()]++
 
 			repoName := repo.GetName()
-			stats.RepoCommits[repoName]++
+			repoCommits[repoName]++
 
 			// コミットの言語集計
 			// ファイル情報を取得
@@ -195,27 +203,37 @@ func (c *Client) fetchWeeklyCommitsInRange(ctx context.Context, username string,
 		}
 	}
 
-	// CommitDaysを日付の昇順にソート
-	dateKeys := slices.Sorted(maps.Keys(stats.CommitDays))
+	// commitDaysを日付の昇順にソート
+	dateKeys := slices.Sorted(maps.Keys(commitDays))
 	sortedCommitDays := make(map[string]int)
 	for _, date := range dateKeys {
-		sortedCommitDays[date] = stats.CommitDays[date]
+		sortedCommitDays[date] = commitDays[date]
 	}
-	stats.CommitDays = sortedCommitDays
-	stats.ActiveDays = len(stats.CommitDays)
+	commitDays = sortedCommitDays
+
 	// 回数0の日付を補完
 	for d := startDate; !d.After(endDate); d = d.AddDate(0, 0, 1) {
 		dateStr := d.Format("2006-01-02")
-		if _, exists := stats.CommitDays[dateStr]; !exists {
-			stats.CommitDays[dateStr] = 0
+		if _, exists := commitDays[dateStr]; !exists {
+			commitDays[dateStr] = 0
 		}
 	}
 
 	// 主要言語のみフィルタリング
 	stats.MainLanguages = filterMainLanguages(stats.LanguageCommits)
 
+	// リポジトリの詳細情報を生成（バー幅計算済み）
+	stats.RepoDetails = generateRepoDetails(repoCommits)
+
 	// 7日分のDailyCommitsを生成（コントリビュートグラフ用）
-	stats.DailyCommits = generateDailyCommits(startDate, stats.CommitDays)
+	stats.DailyCommits = generateDailyCommits(startDate, commitDays)
+
+	// コミットがあった日数をカウント
+	for _, day := range stats.DailyCommits {
+		if day.Count > 0 {
+			stats.ActiveDays++
+		}
+	}
 
 	return stats, nil
 }
@@ -265,6 +283,40 @@ func filterMainLanguages(langMap map[string]int) map[string]int {
 		}
 	}
 	return filtered
+}
+
+// リポジトリの詳細情報を生成（バー幅計算済み）
+func generateRepoDetails(repoCommits map[string]int) []RepoDetail {
+	var details []RepoDetail
+
+	// 最大値を計算
+	var maxRepoCommits int
+	for _, count := range repoCommits {
+		if count > maxRepoCommits {
+			maxRepoCommits = count
+		}
+	}
+
+	// リポジトリごとのバー幅をパーセンテージで計算
+	for repoName, count := range repoCommits {
+		percent := 0.0
+		if maxRepoCommits > 0 {
+			percent = (float64(count) / float64(maxRepoCommits)) * 100
+		}
+
+		details = append(details, RepoDetail{
+			Name:       repoName,
+			Count:      count,
+			BarPercent: percent,
+		})
+	}
+
+	// コミット数の多い順でソート
+	slices.SortFunc(details, func(a, b RepoDetail) int {
+		return b.Count - a.Count
+	})
+
+	return details
 }
 
 // 7日分のDailyCommitsを生成（コントリビュートグラフ用）

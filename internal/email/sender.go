@@ -93,10 +93,10 @@ func TestWeeklyMailSend() error {
 			{Date: startDate.AddDate(0, 0, 5), DateStr: startDate.AddDate(0, 0, 5).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 5).Weekday()], Count: 2},
 			{Date: startDate.AddDate(0, 0, 6), DateStr: startDate.AddDate(0, 0, 6).Format("1/2"), Weekday: weekdays[startDate.AddDate(0, 0, 6).Weekday()], Count: 0},
 		},
-		RepoCommits: map[string]int{
-			"awesome-project": 25,
-			"go-utils":        12,
-			"dotfiles":        5,
+		RepoDetails: []github.RepoDetail{
+			{Name: "awesome-project", Count: 25, BarPercent: 100.0},
+			{Name: "go-utils", Count: 12, BarPercent: 48.0},
+			{Name: "dotfiles", Count: 5, BarPercent: 20.0},
 		},
 		MainLanguages: map[string]int{
 			"Go":         120,
@@ -121,10 +121,10 @@ func TestWeeklyMailSend() error {
 				{Date: prevStartDate.AddDate(0, 0, 5), DateStr: prevStartDate.AddDate(0, 0, 5).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 5).Weekday()], Count: 0},
 				{Date: prevStartDate.AddDate(0, 0, 6), DateStr: prevStartDate.AddDate(0, 0, 6).Format("1/2"), Weekday: weekdays[prevStartDate.AddDate(0, 0, 6).Weekday()], Count: 0},
 			},
-			RepoCommits: map[string]int{
-				"awesome-project": 18,
-				"go-utils":        8,
-				"dotfiles":        4,
+			RepoDetails: []github.RepoDetail{
+				{Name: "awesome-project", Count: 18, BarPercent: 100.0},
+				{Name: "go-utils", Count: 8, BarPercent: 44.4},
+				{Name: "dotfiles", Count: 4, BarPercent: 22.2},
 			},
 			MainLanguages: map[string]int{
 				"Go":         90,
