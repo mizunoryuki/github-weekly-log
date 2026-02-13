@@ -88,3 +88,51 @@ var SPECIAL_LANGUAGE_MAP = map[string]string{
 	"vercel.json":        "Config",
 	"netlify.toml":       "Config",
 }
+
+// 主要言語の定数定義
+const (
+	LangGo         = "Go"
+	LangJavaScript = "JavaScript"
+	LangTypeScript = "TypeScript"
+	LangPython     = "Python"
+	LangRust       = "Rust"
+	LangJava       = "Java"
+	LangCpp        = "C++"
+	LangCSharp     = "C#"
+	LangRuby       = "Ruby"
+	LangPHP        = "PHP"
+	LangSwift      = "Swift"
+	LangKotlin     = "Kotlin"
+	LangDart       = "Dart"
+)
+
+// 基本的な言語のスライス
+var MAIN_LANGUAGES = []string{
+	LangGo,
+	LangTypeScript,
+	LangJavaScript,
+	LangPython,
+	LangRust,
+	LangJava,
+	LangCpp,
+	LangCSharp,
+	LangRuby,
+	LangPHP,
+	LangSwift,
+	LangKotlin,
+	LangDart,
+}
+
+// フィルタリング用の高速参照マップ
+var MAIN_LANGUAGES_SET = func() map[string]bool {
+	set := make(map[string]bool)
+	for _, lang := range MAIN_LANGUAGES {
+		set[lang] = true
+	}
+	return set
+}()
+
+// 除外リポジトリ（集計対象外）
+var EXCLUDED_REPOSITORIES = []string{
+	"obsidian-vault",
+}

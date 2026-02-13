@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github-weekly-log/internal/email"
 	"github-weekly-log/internal/github"
 	"os"
 	"strings"
@@ -15,17 +16,46 @@ func main() {
 	if err != nil {
 		panic("Error loading .env file")
 	}
+
+	if len(os.Args) > 1 && os.Args[1] == "test-email" {
+		err := email.TestWeeklyMailSend()
+		if err != nil {
+			panic(err)
+		}
+		return
+	}
+
 	GITHUB_TOKEN := os.Getenv("GITHUB_TOKEN")
 	GITHUB_USER := os.Getenv("GITHUB_USER")
+	EMAIL_API_KEY := os.Getenv("RESEND_API_KEY")
+	EMAIL_DOMAIN := os.Getenv("RESEND_EMAIL_DOMAIN")
+	EMAIL_TO := os.Getenv("RESEND_EMAIL_TO")
 
 	client := github.NewClient(GITHUB_TOKEN)
 
+	fmt.Println("Start scanning")
 	comparison, err := client.FetchWeeklyCommitsWithComparison(context.Background(), GITHUB_USER)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println("Finished scanning")
 
+	// 結果表示
 	printWeeklyComparison(comparison)
+
+	fmt.Println("Load HTML template")
+	// HTMLテンプレート読み込み
+	htmlContent, err := email.LoadTemplate(*comparison)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Send weekly report email")
+	// メール送信
+	err = email.SendWeeklyReport(EMAIL_API_KEY, htmlContent, "", EMAIL_DOMAIN, EMAIL_TO)
+	if err != nil {
+		panic(err)
+	}
 
 }
 
@@ -52,9 +82,9 @@ func printWeeklyComparison(comp *github.WeeklyComparison) {
 
 	// 差分と変化率を表示
 	if comp.CommitsDiff > 0 {
-		fmt.Printf("  📈 %+d (%.1f%% 増加)\n", comp.CommitsDiff, comp.CommitsChangeRate)
+		fmt.Printf("  📈 %+d (%d%% 増加)\n", comp.CommitsDiff, comp.CommitsChangeRate)
 	} else if comp.CommitsDiff < 0 {
-		fmt.Printf("  📉 %d (%.1f%% 減少)\n", comp.CommitsDiff, -comp.CommitsChangeRate)
+		fmt.Printf("  📉 %d (%d%% 減少)\n", comp.CommitsDiff, -comp.CommitsChangeRate)
 	} else {
 		fmt.Printf("  ➡️  変化なし\n")
 	}
@@ -64,17 +94,28 @@ func printWeeklyComparison(comp *github.WeeklyComparison) {
 	fmt.Println("  リポジトリ名          今週  先週  差分")
 	fmt.Println("  " + strings.Repeat("-", 45))
 
+	// RepoDetails から map を生成
+	currentRepos := make(map[string]int)
+	for _, repo := range current.RepoDetails {
+		currentRepos[repo.Name] = repo.Count
+	}
+
+	previousRepos := make(map[string]int)
+	for _, repo := range previous.RepoDetails {
+		previousRepos[repo.Name] = repo.Count
+	}
+
 	allRepos := make(map[string]bool)
-	for repo := range current.RepoCommits {
+	for repo := range currentRepos {
 		allRepos[repo] = true
 	}
-	for repo := range previous.RepoCommits {
+	for repo := range previousRepos {
 		allRepos[repo] = true
 	}
 
 	for repo := range allRepos {
-		currentCount := current.RepoCommits[repo]
-		previousCount := previous.RepoCommits[repo]
+		currentCount := currentRepos[repo]
+		previousCount := previousRepos[repo]
 		diff := currentCount - previousCount
 
 		diffStr := ""

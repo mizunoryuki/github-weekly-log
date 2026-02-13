@@ -5,6 +5,7 @@ go 1.25.5
 require (
 	github.com/google/go-github/v60 v60.0.0
 	github.com/joho/godotenv v1.5.1
+	github.com/resend/resend-go/v3 v3.1.0
 )
 
 require (

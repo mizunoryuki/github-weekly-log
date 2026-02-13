@@ -1,0 +1,17 @@
+{
+  "name": "github-weekly-log",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:email": "mjml templates/src/weekly.mjml -o templates/dist/weekly.html",
+    "build:test" : "mjml templates/src/test.mjml -o templates/dist/test.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mjml": "^4.18.0"
+  }
+}
