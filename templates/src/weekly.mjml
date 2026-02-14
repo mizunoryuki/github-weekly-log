@@ -1,44 +1,20 @@
-<mjml>
+<mjml lang="ja">
   <mj-head>
     <mj-title>Weekly Commit Report</mj-title>
     <mj-raw>
-      <meta name="color-scheme" content="light">
-      <meta name="supported-color-schemes" content="light">
+      <meta name="color-scheme" content="dark">
+      <meta name="supported-color-schemes" content="dark">
     </mj-raw>
-    <mj-style>
-      body {
-        background-color: #0d1116 !important;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        body {
-          background-color: #0d1116 !important;
-        }
-
-        * {
-          background-color: #0d1116 !important;
-        }
-      }
-
-      @media (prefers-color-scheme: light) {
-        body {
-          background-color: #0d1116 !important;
-        }
-      }
-    </mj-style>
     <mj-attributes>
-      <mj-all font-family="Helvetica, Arial, sans-serif" background-color="#0d1116" />
-      <mj-text color="#9198a1" padding="10px 25px" />
+      <mj-all font-family="Helvetica, Arial, sans-serif" />
       <mj-section background-color="#0d1116" padding="0" />
-      <mj-wrapper background-color="#0d1116" />
-      <mj-body background-color="#0d1116" />
+      <mj-text color="#9198a1" padding="10px 25px" />
     </mj-attributes>
     <mj-style inline="inline">
       .stat-label {
         font-size: 16px;
         color: #e1e8ee;
         font-weight: bold;
-        line-height: 1.2;
       }
 
       .stat-value {
@@ -64,155 +40,264 @@
         font-size: 13px;
       }
 
-      .contrib-box {
-        width: 36px;
-        height: 36px;
+      /* ボックスの共通スタイル */
+      .box {
+        width: 32px;
+        height: 32px;
         margin: 0 auto;
         border-radius: 4px;
-        line-height: 36px;
+        line-height: 32px;
         text-align: center;
-        font-size: 12px;
-        color: #ffffff;
+        font-size: 11px;
         font-weight: 600;
         display: block;
       }
 
-      .contrib-box-0 {
+      /* 色の定義 */
+      .c0 {
         background-color: #161b21;
         border: 1px solid #30363d;
-        color: #586069;
+        color: #586069 !important;
       }
 
-      .contrib-box-low {
+      .c1 {
         background-color: #0e4429;
+        color: #ffffff !important;
       }
 
-      .contrib-box-mid {
+      .c2 {
         background-color: #006d32;
+        color: #ffffff !important;
       }
 
-      .contrib-box-high {
+      .c3 {
         background-color: #26a641;
+        color: #ffffff !important;
       }
 
-      .contrib-box-max {
+      .c4 {
         background-color: #39d353;
-      }
-
-      .contrib-weekday {
-        font-size: 10px;
-        margin-bottom: 4px;
-        font-weight: bold;
-        color: #9198a1;
+        color: #ffffff !important;
       }
     </mj-style>
   </mj-head>
   <mj-body background-color="#0d1116">
-    <mj-wrapper background-color="#0d1116">
 
-      <mj-section background-color="#0d1116" border-bottom="1px solid #3d444d" padding="20px 0">
-        <mj-column width="100%" background-color="#0d1116">
-          <mj-text color="#e1e8ee" font-size="24px" font-weight="bold" container-background-color="#0d1116">
-            Weekly Report
-          </mj-text>
-          <mj-text color="#9198a1" font-size="14px" padding-top="0" container-background-color="#0d1116">
-            {{.CurrentWeek.StartDate.Format "1月2日"}} 〜 {{.CurrentWeek.EndDate.Format "1月2日"}}
+    <mj-section padding="0">
+      <mj-column>
+        <mj-text font-size="0px" color="#0d1116" padding="0" line-height="0">
+          {{.CurrentWeek.EndDate.Unix}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section border-bottom="1px solid #3d444d" padding="20px 0">
+      <mj-column width="100%">
+        <mj-text color="#e1e8ee" font-size="24px" font-weight="bold">Weekly Report</mj-text>
+        <mj-text font-size="14px" padding-top="0">
+          {{.CurrentWeek.StartDate.Format "1月2日"}} 〜 {{.CurrentWeek.EndDate.Format "1月2日"}}
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section border-bottom="1px solid #3d444d" padding="20px 0">
+      <mj-group>
+        <mj-column>
+          <mj-text align="center" padding="0">
+            <span class="stat-label">トータルコミット</span><br />
+            <span class="stat-value" style="color: #28a745;">{{.CurrentWeek.TotalCommits}}</span><br />
+
+            {{if gt .CommitsDiff 0}}<span class="increase">(+{{.CommitsDiff}})</span>
+            {{else if lt .CommitsDiff 0}}<span class="decrease">({{.CommitsDiff}})</span>{{end}}
+              <br />
+              {{if gt .CommitsChangeRate 0}}<span class="increase">▲ {{printf "%d" .CommitsChangeRate}}%</span>
+              {{else if lt .CommitsChangeRate 0}}<span class="decrease">▼ {{printf "%d" .CommitsChangeRate}}%</span>
+                {{else}}<span class="no-change">±0%</span>{{end}}
           </mj-text>
         </mj-column>
-      </mj-section>
-
-      <mj-section background-color="#0d1116" border-bottom="1px solid #3d444d" padding="20px 0">
-        <mj-group background-color="#0d1116">
-          <mj-column background-color="#0d1116">
-            <mj-text align="center" padding="0" container-background-color="#0d1116">
-              <span class="stat-label">トータルコミット</span><br />
-              <span class="stat-value" style="color: #28a745;">{{.CurrentWeek.TotalCommits}}</span><br />
-              {{if gt .CommitsDiff 0}}<span class="increase"> (+{{.CommitsDiff}})</span>
-              {{else if lt .CommitsDiff 0}}<span class="decrease"> ({{.CommitsDiff}})</span>{{end}}
-                <br />
-                {{if gt .CommitsChangeRate 0}}<span class="increase">▲ {{printf "%d" .CommitsChangeRate}}%</span>
-                {{else if lt .CommitsChangeRate 0}}<span class="decrease">▼ {{printf "%d" .CommitsChangeRate}}%</span>
-                  {{else}}<span class="no-change">±0%</span>{{end}}
-            </mj-text>
-          </mj-column>
-          <mj-column background-color="#0d1116">
-            <mj-text align="center" padding="0" container-background-color="#0d1116">
-              <span class="stat-label">活動日数</span><br />
-              <span class="stat-value" style="color: #3081f7;">{{.CurrentWeek.ActiveDays}}</span>
-              <span style="font-size: 16px; color: #586069;"> / 7 days</span>
-            </mj-text>
-          </mj-column>
-        </mj-group>
-      </mj-section>
-      <mj-section background-color="#0d1116" padding="20px 0">
-        <mj-column width="100%" background-color="#0d1116">
-          <mj-text font-size="16px" font-weight="bold" color="#e1e8ee" padding-bottom="10px" container-background-color="#0d1116">
-            頑張りゲージ
+        <mj-column>
+          <mj-text align="center" padding="0">
+            <span class="stat-label">活動日数</span><br />
+            <span class="stat-value" style="color: #3081f7;">{{.CurrentWeek.ActiveDays}}</span>
+            <span style="font-size: 16px; color: #586069;"> / 7 days</span>
           </mj-text>
         </mj-column>
-        <mj-group background-color="#0d1116">
-          <mj-raw>{{range .CurrentWeek.DailyCommits}}</mj-raw>
-          <mj-column width="14.28%" background-color="#0d1116">
-            <mj-text align="center" padding="0" container-background-color="#0d1116">
-              <div style="font-size: 10px; margin-bottom: 4px; font-weight: bold; color: #9198a1;">{{.Weekday}}</div>
-              <div style="width: 36px; height: 36px; margin: 0 auto; border-radius: 4px; line-height: 36px; text-align: center; font-size: 12px; color: #e1e8ee !important; font-weight: 600; display: block; {{if eq .Count 0}}background-color: #161b21 !important; border: 1px solid #30363d;{{else if le .Count 3}}background-color: #0e4429 !important;{{else if le .Count 9}}background-color: #006d32 !important;{{else if le .Count 19}}background-color: #26a641 !important;{{else}}background-color: #39d353 !important;{{end}}">
-                {{.Count}}
-              </div>
-              <div style="font-size: 9px; margin-top: 4px; font-weight: bold; color: #586069;">{{.DateStr}}</div>
-            </mj-text>
-          </mj-column>
-          <mj-raw>{{end}}</mj-raw>
-        </mj-group>
-      </mj-section>
+      </mj-group>
+    </mj-section>
 
-      <mj-section background-color="#0d1116" border-top="1px solid #3d444d" padding="16px 0">
-        <mj-column width="100%" background-color="#0d1116">
-          <mj-text font-size="16px" font-weight="bold" color="#e1e8ee" container-background-color="#0d1116">
-            リポジトリ別活動
-          </mj-text>
-          <mj-raw>{{range .CurrentWeek.RepoDetails}}</mj-raw>
-          <mj-text padding-top="8px" padding-bottom="4px" container-background-color="#0d1116">
-            <span style="font-weight: 600;">
-              <a href="https://github.com/mizunoryuki/{{.Name}}" style="color: #3081f7; text-decoration: none;">{{.Name}}</a>
-            </span>
-            <span style="float: right; font-weight: 700; color: #e1e8ee;">{{.Count}}</span>
-          </mj-text>
-          <mj-raw>
-            <tr>
-              <td align="left" style="font-size:0px;padding:10px 25px;padding-top:0;padding-bottom:12px;word-break:break-word;background-color:#0d1116;">
-                <div style="font-family:Helvetica, Arial, sans-serif;font-size:13px;line-height:1;text-align:left;color:#9198a1;">
-                  <div style="width: 100%; height: 6px; background: #30363d; border-radius: 3px; font-size: 1px; line-height: 1px;">
-                    <div style="height: 6px; background: #238636; border-radius: 3px; width: {{.BarPercent}}%;"></div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </mj-raw>
-          <mj-raw>{{end}}</mj-raw>
-        </mj-column>
-      </mj-section>
+    <mj-section padding="20px 0">
+      <mj-column width="100%">
+        <mj-text font-size="16px" font-weight="bold" color="#e1e8ee">頑張りゲージ</mj-text>
+      </mj-column>
+      <mj-raw>{{$days := .CurrentWeek.DailyCommits}}</mj-raw>
+      <mj-group>
 
-      <mj-section background-color="#0d1116" border-top="1px solid #3d444d" padding="16px 0">
-        <mj-column width="100%" background-color="#0d1116">
-          <mj-text font-size="16px" font-weight="bold" color="#e1e8ee" container-background-color="#0d1116">
-            主要言語の変更ファイル数
-          </mj-text>
-          <mj-raw>{{range $lang, $count := .CurrentWeek.MainLanguages}}</mj-raw>
-          <mj-text padding-top="4px" padding-bottom="4px" container-background-color="#0d1116">
-            <span style="color: #9198a1;">{{$lang}}:</span> <b style="color: #e1e8ee;">{{$count}}</b> <span style="font-size: 12px;">files changed</span>
-          </mj-text>
-          <mj-raw>{{end}}</mj-raw>
-        </mj-column>
-      </mj-section>
-
-      <mj-section background-color="#0d1116" padding="20px 0 40px 0">
-        <mj-column background-color="#0d1116">
-          <mj-text align="center" color="#586069" font-size="12px" container-background-color="#0d1116">
-            Sent by GitHub Weekly Log System
+        <mj-column width="14.28%">
+          <mj-text align="center" padding="0">
+            {{$d := index $days 0}}
+            <div style="font-size:10px; margin-bottom:4px; font-weight:bold;">{{$d.Weekday}}</div>
+            {{if eq $d.Count 0}}
+            <div class="box c0">{{$d.Count}}</div>
+            {{else if le $d.Count 3}}
+              <div class="box c1">{{$d.Count}}</div>
+              {{else if le $d.Count 9}}
+                <div class="box c2">{{$d.Count}}</div>
+                {{else if le $d.Count 19}}
+                  <div class="box c3">{{$d.Count}}</div>
+                  {{else}}
+                    <div class="box c4">{{$d.Count}}</div>{{end}}
+                    <div style="font-size:9px; margin-top:4px; font-weight:bold;">{{$d.DateStr}}</div>
           </mj-text>
         </mj-column>
-      </mj-section>
 
-    </mj-wrapper>
+        <mj-column width="14.28%">
+          <mj-text align="center" padding="0">
+            {{$d := index $days 1}}
+            <div style="font-size:10px; margin-bottom:4px; font-weight:bold;">{{$d.Weekday}}</div>
+            {{if eq $d.Count 0}}
+            <div class="box c0">{{$d.Count}}</div>
+            {{else if le $d.Count 3}}
+              <div class="box c1">{{$d.Count}}</div>
+              {{else if le $d.Count 9}}
+                <div class="box c2">{{$d.Count}}</div>
+                {{else if le $d.Count 19}}
+                  <div class="box c3">{{$d.Count}}</div>
+                  {{else}}
+                    <div class="box c4">{{$d.Count}}</div>{{end}}
+                    <div style="font-size:9px; margin-top:4px; font-weight:bold;">{{$d.DateStr}}</div>
+          </mj-text>
+        </mj-column>
+
+        <mj-column width="14.28%">
+          <mj-text align="center" padding="0">
+            {{$d := index $days 2}}
+            <div style="font-size:10px; margin-bottom:4px; font-weight:bold;">{{$d.Weekday}}</div>
+            {{if eq $d.Count 0}}
+            <div class="box c0">{{$d.Count}}</div>
+            {{else if le $d.Count 3}}
+              <div class="box c1">{{$d.Count}}</div>
+              {{else if le $d.Count 9}}
+                <div class="box c2">{{$d.Count}}</div>
+                {{else if le $d.Count 19}}
+                  <div class="box c3">{{$d.Count}}</div>
+                  {{else}}
+                    <div class="box c4">{{$d.Count}}</div>{{end}}
+                    <div style="font-size:9px; margin-top:4px; font-weight:bold;">{{$d.DateStr}}</div>
+          </mj-text>
+        </mj-column>
+
+        <mj-column width="14.28%">
+          <mj-text align="center" padding="0">
+            {{$d := index $days 3}}
+            <div style="font-size:10px; margin-bottom:4px; font-weight:bold;">{{$d.Weekday}}</div>
+            {{if eq $d.Count 0}}
+            <div class="box c0">{{$d.Count}}</div>
+            {{else if le $d.Count 3}}
+              <div class="box c1">{{$d.Count}}</div>
+              {{else if le $d.Count 9}}
+                <div class="box c2">{{$d.Count}}</div>
+                {{else if le $d.Count 19}}
+                  <div class="box c3">{{$d.Count}}</div>
+                  {{else}}
+                    <div class="box c4">{{$d.Count}}</div>{{end}}
+                    <div style="font-size:9px; margin-top:4px; font-weight:bold;">{{$d.DateStr}}</div>
+          </mj-text>
+        </mj-column>
+
+        <mj-column width="14.28%">
+          <mj-text align="center" padding="0">
+            {{$d := index $days 4}}
+            <div style="font-size:10px; margin-bottom:4px; font-weight:bold;">{{$d.Weekday}}</div>
+            {{if eq $d.Count 0}}
+            <div class="box c0">{{$d.Count}}</div>
+            {{else if le $d.Count 3}}
+              <div class="box c1">{{$d.Count}}</div>
+              {{else if le $d.Count 9}}
+                <div class="box c2">{{$d.Count}}</div>
+                {{else if le $d.Count 19}}
+                  <div class="box c3">{{$d.Count}}</div>
+                  {{else}}
+                    <div class="box c4">{{$d.Count}}</div>{{end}}
+                    <div style="font-size:9px; margin-top:4px; font-weight:bold;">{{$d.DateStr}}</div>
+          </mj-text>
+        </mj-column>
+
+        <mj-column width="14.28%">
+          <mj-text align="center" padding="0">
+            {{$d := index $days 5}}
+            <div style="font-size:10px; margin-bottom:4px; font-weight:bold;">{{$d.Weekday}}</div>
+            {{if eq $d.Count 0}}
+            <div class="box c0">{{$d.Count}}</div>
+            {{else if le $d.Count 3}}
+              <div class="box c1">{{$d.Count}}</div>
+              {{else if le $d.Count 9}}
+                <div class="box c2">{{$d.Count}}</div>
+                {{else if le $d.Count 19}}
+                  <div class="box c3">{{$d.Count}}</div>
+                  {{else}}
+                    <div class="box c4">{{$d.Count}}</div>{{end}}
+                    <div style="font-size:9px; margin-top:4px; font-weight:bold;">{{$d.DateStr}}</div>
+          </mj-text>
+        </mj-column>
+
+        <mj-column width="14.28%">
+          <mj-text align="center" padding="0">
+            {{$d := index $days 6}}
+            <div style="font-size:10px; margin-bottom:4px; font-weight:bold;">{{$d.Weekday}}</div>
+            {{if eq $d.Count 0}}
+            <div class="box c0">{{$d.Count}}</div>
+            {{else if le $d.Count 3}}
+              <div class="box c1">{{$d.Count}}</div>
+              {{else if le $d.Count 9}}
+                <div class="box c2">{{$d.Count}}</div>
+                {{else if le $d.Count 19}}
+                  <div class="box c3">{{$d.Count}}</div>
+                  {{else}}
+                    <div class="box c4">{{$d.Count}}</div>{{end}}
+                    <div style="font-size:9px; margin-top:4px; font-weight:bold;">{{$d.DateStr}}</div>
+          </mj-text>
+        </mj-column>
+      </mj-group>
+    </mj-section>
+
+    <mj-section border-top="1px solid #3d444d" padding="16px 0">
+      <mj-column width="100%">
+        <mj-text font-size="16px" font-weight="bold" color="#e1e8ee">リポジトリ別活動</mj-text>
+        <mj-raw>{{range .CurrentWeek.RepoDetails}}</mj-raw>
+        <mj-text padding-top="8px" padding-bottom="4px">
+          <span style="font-weight: 600;">
+            <a href="https://github.com/mizunoryuki/{{.Name}}" style="color: #3081f7; text-decoration: none;">{{.Name}}</a>
+          </span>
+          <span style="float: right; font-weight: 700; color: #e1e8ee;">{{.Count}}</span>
+        </mj-text>
+        <mj-text padding-top="0" padding-bottom="12px">
+          <div style="width: 100%; height: 6px; background-color: #30363d; border-radius: 3px;">
+            <div style="height: 6px; background-color: #238636; border-radius: 3px; width: {{.BarPercent}}%;"></div>
+          </div>
+        </mj-text>
+        <mj-raw>{{end}}</mj-raw>
+      </mj-column>
+    </mj-section>
+
+    <mj-section border-top="1px solid #3d444d" padding="16px 0">
+      <mj-column width="100%">
+        <mj-text font-size="16px" font-weight="bold" color="#e1e8ee">主要言語の変更ファイル数</mj-text>
+        <mj-raw>{{range $lang, $count := .CurrentWeek.MainLanguages}}</mj-raw>
+        <mj-text padding-top="4px" padding-bottom="4px">
+          <span style="color: #9198a1;">{{$lang}}:</span> <b style="color: #e1e8ee;">{{$count}}</b> <span style="font-size: 12px;">files changed</span>
+        </mj-text>
+        <mj-raw>{{end}}</mj-raw>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="20px 0 40px 0">
+      <mj-column>
+        <mj-text align="center" color="#586069" font-size="12px">
+          Sent by GitHub Weekly Log System
+          <span style="display:none; font-size:0px;">{{.CurrentWeek.EndDate.Unix}}</span>
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
   </mj-body>
 </mjml>

@@ -1,0 +1,25 @@
+name: Weekly Email Only
+
+on:
+  workflow_dispatch:
+
+jobs:
+  send-email-only:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Run Fetcher (email-only)
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          GITHUB_USER: ${{ secrets.MY_GITHUB_USER }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_EMAIL_DOMAIN: ${{ secrets.RESEND_EMAIL_DOMAIN }}
+          RESEND_EMAIL_TO: ${{ secrets.RESEND_EMAIL_TO }}
+        run: go run cmd/fetcher/main.go email-only
