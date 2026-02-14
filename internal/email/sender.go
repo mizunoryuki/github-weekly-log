@@ -31,12 +31,13 @@ func LoadTemplate(comparison github.WeeklyComparison) (string, error) {
 // メール送信
 func SendWeeklyReport(apiKey string, htmlContent string, imagePath string, emailDomain string, emailTo string) error {
 	client := resend.NewClient(apiKey)
+	subject := fmt.Sprintf("週間コミットレポート (%s)", time.Now().Format("2006/01/02"))
 
 	params := &resend.SendEmailRequest{
-		From:    "chore: お疲れ様委員会 閉会 <" + emailDomain + ">",
+		From:    "お疲れ様委員会 <" + emailDomain + ">",
 		To:      []string{emailTo},
 		Html:    htmlContent,
-		Subject: "週間コミットレポート",
+		Subject: subject,
 	}
 
 	sent, err := client.Emails.Send(params)
@@ -152,11 +153,12 @@ func TestWeeklyMailSend() error {
 	emailTo := os.Getenv("TEST_RESEND_EMAIL_TO")
 
 	client := resend.NewClient(apiKey)
+	subject := fmt.Sprintf("[テスト]週間コミットレポート (%s)", time.Now().Format("2006/01/02"))
 	params := &resend.SendEmailRequest{
-		From:    "[テスト]chore: お疲れ様委員会 閉会 <" + emailDomain + ">",
+		From:    "[テスト]お疲れ様委員会 <" + emailDomain + ">",
 		To:      []string{emailTo},
 		Html:    buf.String(),
-		Subject: "週間コミットレポート（テスト送信）",
+		Subject: subject,
 	}
 	_, err = client.Emails.Send(params)
 	if err != nil {
