@@ -33,7 +33,7 @@ func SendWeeklyReport(apiKey string, htmlContent string, imagePath string, email
 	client := resend.NewClient(apiKey)
 
 	params := &resend.SendEmailRequest{
-		From:    "Acme <" + emailDomain + ">",
+		From:    "chore: お疲れ様委員会 閉会 <" + emailDomain + ">",
 		To:      []string{emailTo},
 		Html:    htmlContent,
 		Subject: "週間コミットレポート",
@@ -153,7 +153,7 @@ func TestWeeklyMailSend() error {
 
 	client := resend.NewClient(apiKey)
 	params := &resend.SendEmailRequest{
-		From:    "Acme <" + emailDomain + ">",
+		From:    "[テスト]chore: お疲れ様委員会 閉会 <" + emailDomain + ">",
 		To:      []string{emailTo},
 		Html:    buf.String(),
 		Subject: "週間コミットレポート（テスト送信）",
