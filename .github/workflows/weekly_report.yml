@@ -1,0 +1,32 @@
+name: Weekly GitHub Report
+
+on:
+  schedule:
+    # 毎週土曜日の 00:00 UTC (日本時間 09:00)
+    - cron: '0 0 * * 6'
+  workflow_dispatch:
+
+jobs:
+  run-fetcher:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Run Fetcher
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          GITHUB_USER: ${{ secrets.MY_GITHUB_USER }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_EMAIL_DOMAIN: ${{ secrets.RESEND_EMAIL_DOMAIN }}
+          RESEND_EMAIL_TO: ${{ secrets.RESEND_EMAIL_TO }}
+          D1_API_TOKEN: ${{ secrets.D1_API_TOKEN }}
+          D1_ACCOUNT_ID: ${{ secrets.D1_ACCOUNT_ID }}
+          D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
+          APP_ENV: production
+        run: go run cmd/fetcher/main.go
