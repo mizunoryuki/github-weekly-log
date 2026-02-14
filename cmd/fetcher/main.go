@@ -32,8 +32,17 @@ func main() {
 	EMAIL_DOMAIN := os.Getenv("RESEND_EMAIL_DOMAIN")
 	EMAIL_TO := os.Getenv("RESEND_EMAIL_TO")
 	D1_API_TOKEN := os.Getenv("D1_API_TOKEN")
-	D1_DATABASE_ID := os.Getenv("D1_DATABASE_ID")
 	D1_ACCOUNT_ID := os.Getenv("D1_ACCOUNT_ID")
+	APP_ENV := os.Getenv("APP_ENV")
+	var D1_DATABASE_ID string
+
+	if APP_ENV == "development" {
+		fmt.Println("⚠️  開発環境で実行中です。開発DBに保存されます。")
+		D1_DATABASE_ID = os.Getenv("D1_DATABASE_ID_DEV")
+	} else {
+		fmt.Println("🚀 本番環境で実行中です。本番DBに保存されます。")
+		D1_DATABASE_ID = os.Getenv("D1_DATABASE_ID")
+	}
 
 	client := github.NewClient(GITHUB_TOKEN)
 
