@@ -34,23 +34,23 @@ type RepoDetail struct {
 
 // 週間コミットデータ構造体
 type WeeklyStats struct {
-	TotalCommits    int            // 累計コミット数
-	DailyCommits    []DailyCommit  // 7日分の日次データ（順序保証）
-	HourlyActivity  [24]int        // 時間帯ごとのコミット数
-	RepoDetails     []RepoDetail   // リポジトリの詳細情報（バー幅計算済み）
-	LanguageCommits map[string]int // 言語ごとのコミット数
-	MainLanguages   map[string]int // 主要言語ごとのコミット数
-	StartDate       time.Time      // 週間開始日
-	EndDate         time.Time      // 週間終了日
-	ActiveDays      int            // コミットがあった日数（DailyCommits から計算）
+	TotalCommits    int            `json:"totalCommits"`    // 累計コミット数
+	DailyCommits    []DailyCommit  `json:"dailyCommits"`    // 7日分の日次データ（順序保証）
+	HourlyActivity  [24]int        `json:"hourlyActivity"`  // 時間帯ごとのコミット数
+	RepoDetails     []RepoDetail   `json:"repoDetails"`     // リポジトリの詳細情報（バー幅計算済み）
+	LanguageCommits map[string]int `json:"languageCommits"` // 言語ごとのコミット数
+	MainLanguages   map[string]int `json:"mainLanguages"`   // 主要言語ごとのコミット数
+	StartDate       time.Time      `json:"startDate"`       // 週間開始日
+	EndDate         time.Time      `json:"endDate"`         // 週間終了日
+	ActiveDays      int            `json:"activeDays"`      // コミットがあった日数（DailyCommits から計算）
 }
 
 // 前週比較データ構造体
 type WeeklyComparison struct {
-	CurrentWeek       *WeeklyStats
-	PreviousWeek      *WeeklyStats
-	CommitsDiff       int // コミット数の差分
-	CommitsChangeRate int // コミット数の変化率（%）
+	CurrentWeek       *WeeklyStats `json:"currentWeek"`       // 今週のデータ
+	PreviousWeek      *WeeklyStats `json:"previousWeek"`      // 先週のデータ
+	CommitsDiff       int          `json:"commitsDiff"`       // コミット数の差分
+	CommitsChangeRate int          `json:"commitsChangeRate"` // コミット数の変化率（%）
 }
 
 // クライアントの生成
