@@ -25,7 +25,7 @@ func InitD1(apiToken string, accountID string) *cloudflare.Client {
 func SaveWeeklyStatsToD1WithTransaction(ctx context.Context, client *cloudflare.Client, accountID, databaseID string, stats *github.WeeklyStats) error {
 	log.Println("[INFO] データ保存処理を開始します")
 
-	// フェーズ1: weekly_stats を挿入
+	// weekly_stats を挿入（UPSERT）
 	log.Println("[INFO] weekly_stats テーブルへの挿入を開始")
 	weeklyStatsID, err := insertWeeklyStats(ctx, client, accountID, databaseID, stats)
 	if err != nil {
@@ -34,18 +34,66 @@ func SaveWeeklyStatsToD1WithTransaction(ctx context.Context, client *cloudflare.
 	}
 	log.Printf("[INFO] weekly_stats を挿入しました (ID: %s)", weeklyStatsID)
 
-	// フェーズ2: 子データを一括挿入
+	// 既存の子データを削除
+	log.Println("[INFO] 既存の子データを削除中")
+	err = deleteChildData(ctx, client, accountID, databaseID, weeklyStatsID)
+	if err != nil {
+		log.Printf("[WARN] 既存データの削除に失敗しました: %v", err)
+	}
+
+	// 子データを一括挿入
 	log.Println("[INFO] 子データの挿入を開始")
 	err = insertChildData(ctx, client, accountID, databaseID, weeklyStatsID, stats)
 	if err != nil {
 		log.Printf("[ERROR] 子データの挿入に失敗しました: %v", err)
-		log.Println("[INFO] ロールバック処理を開始")
-		rollbackWeeklyStats(ctx, client, accountID, databaseID, weeklyStatsID)
 		return fmt.Errorf("子データ挿入エラー: %w", err)
 	}
 
 	log.Printf("[INFO] データ保存が完了しました (ID: %s, commits: %d, active_days: %d)",
 		weeklyStatsID, stats.TotalCommits, stats.ActiveDays)
+	return nil
+}
+
+// 既存の子データを削除
+func deleteChildData(ctx context.Context, client *cloudflare.Client, accountID, databaseID, weeklyStatsID string) error {
+	var batch []d1.DatabaseQueryParamsBodyMultipleQueriesBatch
+
+	batch = append(batch, d1.DatabaseQueryParamsBodyMultipleQueriesBatch{
+		Sql:    cloudflare.F(`DELETE FROM language_commits WHERE weekly_stats_id = ?`),
+		Params: cloudflare.F([]string{weeklyStatsID}),
+	})
+	batch = append(batch, d1.DatabaseQueryParamsBodyMultipleQueriesBatch{
+		Sql:    cloudflare.F(`DELETE FROM repo_details WHERE weekly_stats_id = ?`),
+		Params: cloudflare.F([]string{weeklyStatsID}),
+	})
+	batch = append(batch, d1.DatabaseQueryParamsBodyMultipleQueriesBatch{
+		Sql:    cloudflare.F(`DELETE FROM hourly_activity WHERE weekly_stats_id = ?`),
+		Params: cloudflare.F([]string{weeklyStatsID}),
+	})
+	batch = append(batch, d1.DatabaseQueryParamsBodyMultipleQueriesBatch{
+		Sql:    cloudflare.F(`DELETE FROM daily_commits WHERE weekly_stats_id = ?`),
+		Params: cloudflare.F([]string{weeklyStatsID}),
+	})
+
+	result, err := client.D1.Database.Query(ctx, databaseID, d1.DatabaseQueryParams{
+		AccountID: cloudflare.F(accountID),
+		Body:      d1.DatabaseQueryParamsBodyMultipleQueries{Batch: cloudflare.F(batch)},
+	})
+	if err != nil {
+		return err
+	}
+
+	totalDeleted := 0
+	for _, queryResult := range result.Result {
+		if queryResult.Meta.Changes > 0 {
+			totalDeleted += int(queryResult.Meta.Changes)
+		}
+	}
+
+	if totalDeleted > 0 {
+		log.Printf("[INFO] 既存の子データを削除しました (%d件)", totalDeleted)
+	}
+
 	return nil
 }
 
@@ -82,7 +130,6 @@ func insertWeeklyStats(ctx context.Context, client *cloudflare.Client, accountID
 	}
 
 	queryResult := result.Result[0]
-
 	if len(queryResult.Results) == 0 {
 		return "", fmt.Errorf("RETURNING id の結果が空です")
 	}
@@ -193,29 +240,10 @@ func insertChildData(ctx context.Context, client *cloudflare.Client, accountID, 
 	for i, queryResult := range result.Result {
 		if !queryResult.Success {
 			log.Printf("[ERROR] バッチ処理 #%d が失敗しました", i)
-			log.Printf("[DEBUG] Meta: %+v", queryResult.Meta)
 			return fmt.Errorf("バッチ #%d 実行エラー", i)
 		}
 	}
 
 	log.Printf("[INFO] 子データの挿入が完了しました (%d件)", len(result.Result))
 	return nil
-}
-
-// ロールバック：weekly_stats を削除
-func rollbackWeeklyStats(ctx context.Context, client *cloudflare.Client, accountID, databaseID, weeklyStatsID string) {
-	log.Printf("[INFO] ロールバック: weekly_stats (ID: %s) を削除します", weeklyStatsID)
-
-	_, err := client.D1.Database.Query(ctx, databaseID, d1.DatabaseQueryParams{
-		AccountID: cloudflare.F(accountID),
-		Body: d1.DatabaseQueryParamsBodyD1SingleQuery{
-			Sql:    cloudflare.F(`DELETE FROM weekly_stats WHERE id = ?`),
-			Params: cloudflare.F([]string{weeklyStatsID}),
-		},
-	})
-	if err != nil {
-		log.Printf("[ERROR] ロールバックに失敗しました: %v", err)
-	} else {
-		log.Println("[INFO] ロールバックが完了しました")
-	}
 }
