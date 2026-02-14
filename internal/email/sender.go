@@ -149,7 +149,7 @@ func TestWeeklyMailSend() error {
 	}
 
 	apiKey := os.Getenv("RESEND_API_KEY")
-	emailDomain := os.Getenv("RESEND_EMAIL_DOMAIN")
+	emailDomain := os.Getenv("RESEND_EMAIL_DOMAIN_DEV")
 	emailTo := os.Getenv("TEST_RESEND_EMAIL_TO")
 
 	client := resend.NewClient(apiKey)

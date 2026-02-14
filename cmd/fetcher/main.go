@@ -15,12 +15,19 @@ import (
 func main() {
 	_ = godotenv.Load()
 
-	if len(os.Args) > 1 && os.Args[1] == "test-email" {
-		err := email.TestWeeklyMailSend()
-		if err != nil {
-			panic(err)
+	emailOnly := false
+
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "test-email":
+			err := email.TestWeeklyMailSend()
+			if err != nil {
+				panic(err)
+			}
+			return
+		case "email-only":
+			emailOnly = true
 		}
-		return
 	}
 
 	GITHUB_TOKEN := os.Getenv("GITHUB_TOKEN")
@@ -33,12 +40,16 @@ func main() {
 	APP_ENV := os.Getenv("APP_ENV")
 	var D1_DATABASE_ID string
 
-	if APP_ENV == "development" {
-		fmt.Println("⚠️  開発環境で実行中です。開発DBに保存されます。")
-		D1_DATABASE_ID = os.Getenv("D1_DATABASE_ID_DEV")
+	if !emailOnly {
+		if APP_ENV == "development" {
+			fmt.Println("開発環境で実行中です。開発DBに保存されます。")
+			D1_DATABASE_ID = os.Getenv("D1_DATABASE_ID_DEV")
+		} else {
+			fmt.Println("本番環境で実行中です。本番DBに保存されます。")
+			D1_DATABASE_ID = os.Getenv("D1_DATABASE_ID")
+		}
 	} else {
-		fmt.Println("🚀 本番環境で実行中です。本番DBに保存されます。")
-		D1_DATABASE_ID = os.Getenv("D1_DATABASE_ID")
+		fmt.Println("email-only モード: DB保存をスキップします。")
 	}
 
 	client := github.NewClient(GITHUB_TOKEN)
@@ -53,13 +64,15 @@ func main() {
 	// 結果表示
 	printWeeklyComparison(comparison)
 
-	// D1に保存
-	cfClient := database.InitD1(D1_API_TOKEN, D1_ACCOUNT_ID)
+	if !emailOnly {
+		// D1に保存
+		cfClient := database.InitD1(D1_API_TOKEN, D1_ACCOUNT_ID)
 
-	fmt.Println("Save to D1")
-	err = database.SaveWeeklyStatsToD1WithTransaction(context.Background(), cfClient, D1_ACCOUNT_ID, D1_DATABASE_ID, comparison.CurrentWeek)
-	if err != nil {
-		panic(err)
+		fmt.Println("Save to D1")
+		err = database.SaveWeeklyStatsToD1WithTransaction(context.Background(), cfClient, D1_ACCOUNT_ID, D1_DATABASE_ID, comparison.CurrentWeek)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	fmt.Println("Load HTML template")
