@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github-weekly-log/internal/database"
+	"github-weekly-log/internal/document"
 	"github-weekly-log/internal/email"
 	"github-weekly-log/internal/github"
 	"os"
@@ -63,6 +64,13 @@ func main() {
 
 	// 結果表示
 	printWeeklyComparison(comparison)
+
+	// JSONファイル生成
+	err = document.GenerateJSONData(comparison)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Finished generating")
 
 	if !emailOnly {
 		// D1に保存
