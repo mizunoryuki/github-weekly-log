@@ -30,3 +30,30 @@ jobs:
           D1_DATABASE_ID: ${{ secrets.D1_DATABASE_ID }}
           APP_ENV: production
         run: go run cmd/fetcher/main.go
+
+      - name: Checkout Target Repository
+        uses: actions/checkout@v4
+        with:
+          repository: mizunoryuki/github-weekly-log-data
+          token: ${{ secrets.MY_WRITE_TOKEN }}
+          path: target-repo
+
+      - name: Copy and Push data
+        run: |
+          mkdir -p target-repo/archives
+          cp *.json target-repo/archives
+          cp $(ls -t *.json | head -n 1) target-repo/latest.json
+          
+          cd target-repo
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update weekly data: archives & latest.json"
+            git push origin main
+          fi
