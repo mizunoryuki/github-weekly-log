@@ -6,6 +6,7 @@ type Env = {
     CF_API_TOKEN: string
     CF_ACCOUNT_ID: string
     D1_DATABASE_NAME: string
+    ALLOWED_ORIGINS: string
   }
 }
 
@@ -18,6 +19,32 @@ type D1ApiResponse = {
 const app = new Hono<Env>()
 
 const CF_API_BASE = 'https://api.cloudflare.com/client/v4'
+
+const parseAllowedOrigins = (value: string) =>
+  new Set(
+    value
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  )
+
+app.use('/api/*', async (c, next) => {
+  const allowedOrigins = parseAllowedOrigins(c.env.ALLOWED_ORIGINS)
+  const origin = c.req.header('Origin')
+  if (origin && allowedOrigins.has(origin)) {
+    c.header('Access-Control-Allow-Origin', origin)
+    c.header('Access-Control-Allow-Credentials', 'true')
+    c.header('Access-Control-Allow-Headers', 'Content-Type')
+    c.header('Access-Control-Allow-Methods', 'GET,OPTIONS')
+    c.header('Vary', 'Origin')
+  }
+
+  if (c.req.method === 'OPTIONS') {
+    return c.body(null, 204)
+  }
+
+  await next()
+})
 
 const getDatabaseId = async (c: Context<Env>) => {
   const url = new URL(
