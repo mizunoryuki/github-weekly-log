@@ -1,11 +1,194 @@
 ---
-import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const apiBase = import.meta.env.PUBLIC_WORKERS_API_BASE ?? '';
 ---
 
 <Layout>
-	<Welcome />
+	<main class="page" data-api-base={apiBase}>
+		<header class="hero">
+			<p class="eyebrow">Weekly GitHub Activity</p>
+			<h1>API-backed weekly stats</h1>
+			<p class="lede">
+				This page loads weekly summaries from the Workers API. If Access is enabled, you will
+				be asked to sign in.
+			</p>
+		</header>
+
+		<section class="panel">
+			<div class="panel-header">
+				<h2>Available periods</h2>
+				<span id="status" class="status">Loading…</span>
+			</div>
+			<ul id="weekly-list" class="weekly-list"></ul>
+		</section>
+	</main>
+
+	<script type="module">
+		const root = document.querySelector('[data-api-base]')
+		const apiBase = root?.getAttribute('data-api-base')?.replace(/\/$/, '')
+		const statusEl = document.getElementById('status')
+		const listEl = document.getElementById('weekly-list')
+
+		const setStatus = (text) => {
+			if (statusEl) statusEl.textContent = text
+		}
+
+		const renderItems = (items) => {
+			if (!listEl) return
+			listEl.innerHTML = ''
+			items.forEach((item) => {
+				const li = document.createElement('li')
+				li.className = 'weekly-item'
+				li.innerHTML = `
+					<div class="item-range">
+						<span>${item.start_date} → ${item.end_date}</span>
+						<small>ID: ${item.id}</small>
+					</div>
+					<div class="item-metrics">
+						<span>${item.total_commits} commits</span>
+						<span>${item.active_days} active days</span>
+					</div>
+				`
+				listEl.appendChild(li)
+			})
+		}
+
+		const loadWeekly = async () => {
+			if (!apiBase) {
+				setStatus('Missing PUBLIC_WORKERS_API_BASE')
+				return
+			}
+
+			try {
+				const response = await fetch(`${apiBase}/api/weekly`, {
+					credentials: 'include'
+				})
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`)
+				}
+
+				const data = await response.json()
+				renderItems(data.items ?? [])
+				setStatus(`Loaded ${data.items?.length ?? 0} periods`)
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Request failed'
+				setStatus(message)
+			}
+		}
+
+		loadWeekly()
+	</script>
 </Layout>
+
+<style>
+	:global(body) {
+		background: radial-gradient(circle at top, #f0ede7 0%, #efe9e0 35%, #f7f4ef 100%);
+		color: #1e1b16;
+		font-family: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino,
+			serif;
+	}
+
+	.page {
+		min-height: 100vh;
+		padding: 72px 8vw 96px;
+		display: grid;
+		gap: 48px;
+	}
+
+	.hero h1 {
+		font-size: clamp(2.6rem, 4vw, 3.6rem);
+		margin: 12px 0;
+		letter-spacing: -0.02em;
+	}
+
+	.eyebrow {
+		text-transform: uppercase;
+		letter-spacing: 0.18em;
+		font-size: 0.75rem;
+		color: #7b5f3b;
+		margin: 0;
+	}
+
+	.lede {
+		max-width: 640px;
+		font-size: 1.1rem;
+		line-height: 1.7;
+		color: #3a2f24;
+	}
+
+	.panel {
+		background: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(110, 88, 60, 0.2);
+		border-radius: 20px;
+		padding: 24px;
+		box-shadow: 0 30px 80px rgba(64, 48, 32, 0.1);
+	}
+
+	.panel-header {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 16px;
+	}
+
+	.panel h2 {
+		font-size: 1.35rem;
+		margin: 0;
+	}
+
+	.status {
+		font-size: 0.9rem;
+		color: #6c5640;
+	}
+
+	.weekly-list {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: grid;
+		gap: 14px;
+	}
+
+	.weekly-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		padding: 16px 18px;
+		border-radius: 14px;
+		background: #fbfaf7;
+		border: 1px solid rgba(110, 88, 60, 0.15);
+	}
+
+	.item-range {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+		font-weight: 600;
+	}
+
+	.item-range small {
+		font-size: 0.8rem;
+		color: #8a6d4a;
+	}
+
+	.item-metrics {
+		display: flex;
+		gap: 16px;
+		font-size: 0.95rem;
+		color: #4b3a2a;
+	}
+
+	@media (max-width: 720px) {
+		.page {
+			padding: 48px 6vw 72px;
+		}
+
+		.weekly-item {
+			flex-direction: column;
+			align-items: flex-start;
+		}
+	}
+</style>
