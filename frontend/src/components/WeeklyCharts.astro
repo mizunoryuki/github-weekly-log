@@ -1,0 +1,100 @@
+---
+---
+
+<section class="charts-container">
+	<div class="charts-header">
+		<h2>Weekly Details</h2>
+		<select id="period-selector" class="period-selector">
+			<option value="">Select a period...</option>
+		</select>
+	</div>
+
+	<div id="charts-content" class="charts-grid" style="display: none;">
+		<div class="chart-card">
+			<h3>Daily Commits</h3>
+			<canvas id="daily-chart"></canvas>
+		</div>
+
+		<div class="chart-card">
+			<h3>Hourly Activity</h3>
+			<canvas id="hourly-chart"></canvas>
+		</div>
+
+		<div class="chart-card">
+			<h3>Repository Breakdown</h3>
+			<canvas id="repos-chart"></canvas>
+		</div>
+
+		<div class="chart-card">
+			<h3>Language Distribution</h3>
+			<canvas id="languages-chart"></canvas>
+		</div>
+	</div>
+</section>
+
+<style>
+	.charts-container {
+		background: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(110, 88, 60, 0.2);
+		border-radius: 20px;
+		padding: 24px;
+		box-shadow: 0 30px 80px rgba(64, 48, 32, 0.1);
+	}
+
+	.charts-header {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 16px;
+		margin-bottom: 24px;
+		flex-wrap: wrap;
+	}
+
+	.charts-header h2 {
+		font-size: 1.35rem;
+		margin: 0;
+	}
+
+	.period-selector {
+		padding: 8px 12px;
+		border-radius: 8px;
+		border: 1px solid rgba(110, 88, 60, 0.3);
+		background: #fbfaf7;
+		font-size: 0.95rem;
+		cursor: pointer;
+	}
+
+	.charts-grid {
+		display: grid;
+		gap: 24px;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	}
+
+	.chart-card {
+		background: #f9f8f5;
+		border-radius: 12px;
+		padding: 20px;
+		border: 1px solid rgba(110, 88, 60, 0.1);
+	}
+
+	.chart-card h3 {
+		margin: 0 0 16px;
+		font-size: 1.1rem;
+		color: #2b1f15;
+	}
+
+	canvas {
+		max-height: 280px;
+	}
+
+	@media (max-width: 720px) {
+		.charts-header {
+			flex-direction: column;
+			align-items: stretch;
+		}
+
+		.period-selector {
+			width: 100%;
+		}
+	}
+</style>
