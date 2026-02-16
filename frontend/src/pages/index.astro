@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import WeeklyCharts from '../components/WeeklyCharts.astro';
 
 const apiBase = import.meta.env.PUBLIC_WORKERS_API_BASE ?? '';
 ---
@@ -22,21 +23,56 @@ const apiBase = import.meta.env.PUBLIC_WORKERS_API_BASE ?? '';
 			</div>
 			<ul id="weekly-list" class="weekly-list"></ul>
 		</section>
+
+		<WeeklyCharts />
 	</main>
 
 	<script type="module">
+		import {
+			Chart,
+			LineController,
+			BarController,
+			LineElement,
+			BarElement,
+			PointElement,
+			CategoryScale,
+			LinearScale,
+			Title,
+			Tooltip,
+			Legend
+		} from 'chart.js'
+
+		Chart.register(
+			LineController,
+			BarController,
+			LineElement,
+			BarElement,
+			PointElement,
+			CategoryScale,
+			LinearScale,
+			Title,
+			Tooltip,
+			Legend
+		)
+
 		const root = document.querySelector('[data-api-base]')
 		const apiBase = root?.getAttribute('data-api-base')?.replace(/\/$/, '')
 		const statusEl = document.getElementById('status')
 		const listEl = document.getElementById('weekly-list')
+		const selectorEl = document.getElementById('period-selector')
+		const chartsContent = document.getElementById('charts-content')
+
+		let charts = { daily: null, hourly: null, repos: null, languages: null }
 
 		const setStatus = (text) => {
 			if (statusEl) statusEl.textContent = text
 		}
 
 		const renderItems = (items) => {
-			if (!listEl) return
+			if (!listEl || !selectorEl) return
 			listEl.innerHTML = ''
+			selectorEl.innerHTML = '<option value="">Select a period...</option>'
+
 			items.forEach((item) => {
 				const li = document.createElement('li')
 				li.className = 'weekly-item'
@@ -51,7 +87,130 @@ const apiBase = import.meta.env.PUBLIC_WORKERS_API_BASE ?? '';
 					</div>
 				`
 				listEl.appendChild(li)
+
+				const option = document.createElement('option')
+				option.value = item.id
+				option.textContent = `${item.start_date} → ${item.end_date}`
+				selectorEl.appendChild(option)
 			})
+		}
+
+		const destroyCharts = () => {
+			Object.values(charts).forEach((chart) => chart?.destroy())
+			charts = { daily: null, hourly: null, repos: null, languages: null }
+		}
+
+		const renderCharts = (data) => {
+			destroyCharts()
+			if (chartsContent) chartsContent.style.display = 'grid'
+
+			const dailyCanvas = document.getElementById('daily-chart')
+			const hourlyCanvas = document.getElementById('hourly-chart')
+			const reposCanvas = document.getElementById('repos-chart')
+			const languagesCanvas = document.getElementById('languages-chart')
+
+			if (dailyCanvas && data.daily) {
+				charts.daily = new Chart(dailyCanvas, {
+					type: 'line',
+					data: {
+						labels: data.daily.labels,
+						datasets: [
+							{
+								label: 'Commits',
+								data: data.daily.data,
+								borderColor: '#3245ff',
+								backgroundColor: 'rgba(50, 69, 255, 0.1)',
+								tension: 0.3,
+								fill: true
+							}
+						]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				})
+			}
+
+			if (hourlyCanvas && data.hourly) {
+				charts.hourly = new Chart(hourlyCanvas, {
+					type: 'bar',
+					data: {
+						labels: data.hourly.labels,
+						datasets: [
+							{
+								label: 'Commits',
+								data: data.hourly.data,
+								backgroundColor: '#bc52ee'
+							}
+						]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				})
+			}
+
+			if (reposCanvas && data.repos) {
+				charts.repos = new Chart(reposCanvas, {
+					type: 'bar',
+					data: {
+						labels: data.repos.labels,
+						datasets: [
+							{
+								label: 'Commits',
+								data: data.repos.data,
+								backgroundColor: '#f041ff'
+							}
+						]
+					},
+					options: {
+						indexAxis: 'y',
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				})
+			}
+
+			if (languagesCanvas && data.languages) {
+				charts.languages = new Chart(languagesCanvas, {
+					type: 'bar',
+					data: {
+						labels: data.languages.labels,
+						datasets: [
+							{
+								label: 'Commits',
+								data: data.languages.data,
+								backgroundColor: '#d83333'
+							}
+						]
+					},
+					options: {
+						responsive: true,
+						maintainAspectRatio: true,
+						plugins: { legend: { display: false } }
+					}
+				})
+			}
+		}
+
+		const loadWeeklyDetail = async (id) => {
+			try {
+				const response = await fetch(`${apiBase}/api/weekly/${id}`, {
+					credentials: 'include'
+				})
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`)
+				}
+				const data = await response.json()
+				renderCharts(data)
+			} catch (error) {
+				console.error('Failed to load detail:', error)
+			}
 		}
 
 		const loadWeekly = async () => {
@@ -71,10 +230,28 @@ const apiBase = import.meta.env.PUBLIC_WORKERS_API_BASE ?? '';
 				const data = await response.json()
 				renderItems(data.items ?? [])
 				setStatus(`Loaded ${data.items?.length ?? 0} periods`)
+
+				// Auto-load first period
+				if (data.items?.length > 0 && selectorEl) {
+					selectorEl.value = data.items[0].id
+					await loadWeeklyDetail(data.items[0].id)
+				}
 			} catch (error) {
 				const message = error instanceof Error ? error.message : 'Request failed'
 				setStatus(message)
 			}
+		}
+
+		if (selectorEl) {
+			selectorEl.addEventListener('change', (e) => {
+				const id = e.target.value
+				if (id) {
+					loadWeeklyDetail(id)
+				} else {
+					destroyCharts()
+					if (chartsContent) chartsContent.style.display = 'none'
+				}
+			})
 		}
 
 		loadWeekly()
