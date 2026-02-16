@@ -27,33 +27,8 @@ const apiBase = import.meta.env.PUBLIC_WORKERS_API_BASE ?? '';
 		<WeeklyCharts />
 	</main>
 
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 	<script type="module">
-		import {
-			Chart,
-			LineController,
-			BarController,
-			LineElement,
-			BarElement,
-			PointElement,
-			CategoryScale,
-			LinearScale,
-			Title,
-			Tooltip,
-			Legend
-		} from 'chart.js'
-
-		Chart.register(
-			LineController,
-			BarController,
-			LineElement,
-			BarElement,
-			PointElement,
-			CategoryScale,
-			LinearScale,
-			Title,
-			Tooltip,
-			Legend
-		)
 
 		const root = document.querySelector('[data-api-base]')
 		const apiBase = root?.getAttribute('data-api-base')?.replace(/\/$/, '')
